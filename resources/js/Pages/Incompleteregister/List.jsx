@@ -61,7 +61,7 @@ const List = (params) => {
 
 
     return (
-        <AuthenticatedLayout user={params.auth} >
+        <AuthenticatedLayout user={params.auth} info={params.info} urlImagenes={params.globalVars.urlImagenes}>
             <Head title="Clientes" />
             <div style={{ marginTop: '0.2em' }} align="center" className="container">
                 <div align="center" className="row justify-content-center">

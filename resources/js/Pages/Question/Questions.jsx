@@ -10,7 +10,7 @@ const Questions = (params) => {
     const glob = new GlobalFunctions()
     const [lista, setLista] = useState([])
     const [filterLista, setFilterLista] = useState(params.preguntas.data)
-    const [noLista, setNoLista]=useState(false)
+    const [noLista, setNoLista] = useState(false)
 
     useEffect(() => {
         if (filterLista.length == 0) {
@@ -18,40 +18,51 @@ const Questions = (params) => {
         } else {
             setNoLista(false)
         }
-    }, [filterLista, lista]) 
+    }, [filterLista, lista])
 
-    function borrarInput(){
-        document.getElementById('inputBuscar').value=''
+    useEffect(() => {
+        if(params.buscado){
+          document.getElementById('inputBuscar').value = params.preguntas.data[0].producto.nombre
+        }
+    }, [])
+
+
+    function borrarInput() {
+        document.getElementById('inputBuscar').value = ''
         document.getElementById('inputBuscar').click()
-      }
+    }
 
-    function cambioNombre(e){
-        const buscar=e.target.value.toLowerCase()
-        let newArray=[]
-        for(let i=0;i<lista.length; i++){
-          if(lista[i].cliente.nombre.toLowerCase().includes(buscar) || lista[i].cliente.apellidos.toLowerCase().includes(buscar) || lista[i].producto.nombre.toLowerCase().includes(buscar)){
-            newArray.push(lista[i])
-          }
+    function cambioNombre(e) {
+        const buscar = e.target.value.toLowerCase()
+        let newArray = []
+        for (let i = 0; i < lista.length; i++) {
+            if (lista[i].cliente.nombre.toLowerCase().includes(buscar) || lista[i].cliente.apellidos.toLowerCase().includes(buscar) || lista[i].producto.nombre.toLowerCase().includes(buscar)) {
+                newArray.push(lista[i])
+            }
         }
         setFilterLista(newArray)
-      }
+    }
 
     function searchAllQuestions(e) {
         if (lista.length == 0) {
-            const url = params.url + 'question/allquestions'
-            fetch(url)
-                .then((response) => {
-                    return response.json()
-                }).then((json) => {
-                   setLista(json)
-                })
-        }else{
-          cambioNombre(e)
+            fetchAllQuestions()
+        } else {
+            cambioNombre(e)
         }
-      }
+    }
+
+    function fetchAllQuestions() {
+        const url = params.globalVars.myUrl + 'question/allquestions'
+        fetch(url)
+            .then((response) => {
+                return response.json()
+            }).then((json) => {
+                setLista(json)
+            })
+    }
 
     return (
-        <AuthenticatedLayout user={params.auth} >
+        <AuthenticatedLayout user={params.auth} info={params.info} urlImagenes={params.globalVars.urlImagenes}>
             <Head title="Productos" />
             <div className='container'>
                 <div align="center" className="row justify-content-center">
@@ -72,7 +83,7 @@ const Questions = (params) => {
                     </div>
                 </div>
                 <h1 style={{ marginTop: '0.5em', fontSize: '1.5em' }} id="titulo" className="text-center">Lista de preguntas</h1>
-            <TablaPreguntas url={params.url} pagination={params.preguntas.links} noLista={noLista} lista={filterLista}></TablaPreguntas>    
+                <TablaPreguntas url={params.globalVars.myUrl} pagination={params.preguntas.links} noLista={noLista} lista={filterLista}></TablaPreguntas>
             </div>
         </AuthenticatedLayout>
     )

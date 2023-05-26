@@ -21,14 +21,15 @@ class ShoppingController extends Controller
     public function index()
     {
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $compras = DB::table('lista_compras')->orderBy('fecha', 'desc')->paginate(100);
         foreach($compras as $compra){
             $cliente=DB::table('clientes')->where('cedula', '=', $compra->cliente)->first();
             $compra->cliente=$cliente;
         }
         $token = csrf_token();
-        return Inertia::render('Shopping/Shopping', compact('auth', 'compras', 'url', 'token'));
+        $info = DB::table('info_pagina')->first();      
+        return Inertia::render('Shopping/Shopping', compact('auth', 'compras', 'globalVars', 'token', 'info'));
     }
 
     public function create()
@@ -37,11 +38,12 @@ class ShoppingController extends Controller
         $municipios = DB::table('municipios')->get();
         $clientes = $this->all_clientes();
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $productos = $this->all_products();
         $token = csrf_token();
         $datosPagina = DB::table('info_pagina')->first();
-        return Inertia::render('Shopping/NewShopping', compact('auth', 'clientes', 'url', 'deptos', 'municipios', 'productos', 'datosPagina', 'token'));
+        $info = DB::table('info_pagina')->first();
+        return Inertia::render('Shopping/NewShopping', compact('auth', 'clientes', 'globalVars', 'deptos', 'municipios', 'productos', 'datosPagina', 'token', 'info'));
     }
 
     public function save(Request $request)
@@ -73,7 +75,6 @@ class ShoppingController extends Controller
             ]);
            
         }
-        
         return response()->json('ok', 200, []);
     }
 
@@ -82,14 +83,15 @@ class ShoppingController extends Controller
         DB::table('lista_productos_comprados')->where('cliente', '=', $request->cliente)->where('compra_n', '=', $request->compran)->delete();
         DB::table('lista_compras')->where('id', '=', $request->idCompra)->delete();
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $compras = DB::table('lista_compras')->orderBy('fecha', 'desc')->paginate(100);
         foreach($compras as $compra){
             $cliente=DB::table('clientes')->where('cedula', '=', $compra->cliente)->first();
             $compra->cliente=$cliente;
         }
         $token = csrf_token();
-        return Inertia::render('Shopping/Shopping', compact('auth', 'compras', 'url', 'token'));
+        $info = DB::table('info_pagina')->first();
+        return Inertia::render('Shopping/Shopping', compact('auth', 'compras', 'globalVars', 'token', 'info'));
     }
 
     public function show(string $id)

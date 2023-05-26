@@ -7,19 +7,19 @@ const SelectProductos = (params) => {
 
   useEffect(() => {
     cargarDatos()
-  })
+  },[])
 
   function cargarDatos(){
     if(options.length==0 && params.productos.length>0){
         let opts=[]
         for (let i=0; i<params.productos.length; i++){
-            let item= new OptionsAuto(params.productos[i].fk_producto, params.productos[i].nombre)
+            let item= new OptionsAuto(params.productos[i].id, params.productos[i].nombre)
             opts.push(item)
         }
         setOptions(opts)
     } 
   }
-
+ 
   function getChange(e){
      document.getElementById('inputProductoSelected').value=e.codigo
      document.getElementById('inputProductoSelected').click()

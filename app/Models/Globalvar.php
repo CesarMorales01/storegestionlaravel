@@ -4,72 +4,51 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use stdClass;
 
 class Globalvar extends Model
 {
     use HasFactory;
 
-    public $urlRoot = "https://bellohogar.online/";
-    // public $myUrl="https://gestion.bellohogar.online/";
-    public $myUrl = "http://adminboard.test/";
+    public $globalVars;
 
-    // Directorio donde se guardaran las imagenes (diferente en el server porque ya esta configurado que las carpetas estan en el root
-    // del prodyecto, en cambio en laravel solo se puede acceder a los recursos de la carpeta public)
-    public $dirImagenes = "C:\/laragon\www\/adminboard\/public\images\/Imagenes_productos\/";
-    //  public $dirImagenes = "/home/u629086351/domains/bellohogar.online/public_html/Imagenes_productos/";
-    // Se debe crear una url para las imagenes porque <img /> lee url no directorios.
-    public $urlImagenes = "http://adminboard.test/images/Imagenes_productos/";
-    // public $urlImagenes="https://bellohogar.online/Imagenes_productos/";
-    // El campo imagnenes promociones ya esta configurado con el nombre de las imagenes tipo /Imagenes_productos/imagen.png
-    public $urlImagenesPromociones = "http://adminboard.test/images/";
-    // public $urlImagenesPromociones= "https://bellohogar.online/";
-
-    public $dirImagenesCategorias = "C:/laragon\www/adminboard/public/images/ImagenesCategorias/";
-    // public $dirImagenesCategorias = "/home/u629086351/domains/bellohogar.online/public_html/ImagenesCategorias/";
-
-    public $urlImagenesCategorias = "http://adminboard.test/images/";
-    // public $urlImagenesCategorias = "https://bellohogar.online/";
-
-    //laravel no permite tablas con nombre en mayuscula y el proyecto ya esta con esta tabla con mayuscula
-    public $tablaImagenes = "Imagenes_productos";
-
-    public function getMyUrl()
+    function __construct()
     {
-        return $this->myUrl;
+        $this->globalVars = new stdClass();
+        //$this->globalVars->urlRoot = "https://bellohogar.online/";
+        $this->globalVars->urlRoot = "http://adminboard.test/";
+
+        // $this->globalVars->myUrl="https://gestion.bellohogar.online/";
+        $this->globalVars->myUrl = "http://adminboard.test/";
+
+        /*
+            Directorio donde se guardaran las imagenes (diferente en el server porque ya esta configurado que las carpetas estan en el root
+            del prodyecto, en cambio en laravel solo se puede acceder a los recursos de la carpeta public)
+        */
+        $this->globalVars->dirImagenes = "C:\/laragon\www\/adminboard\/public\images\/Imagenes_productos\/";
+        //  $this->globalVars->dirImagenes = "/home/u629086351/domains/bellohogar.online/public_html/Imagenes_productos/";
+
+        /* Se debe crear una url para las imagenes porque <img /> lee url no directorios.*/
+        $this->globalVars->urlImagenes = "http://adminboard.test/images/Imagenes_productos/";
+        // $this->globalVars->urlImagenes="https://bellohogar.online/Imagenes_productos/";
+
+        /* El campo imagenes promociones ya esta configurado con el nombre de las imagenes tipo /Imagenes_productos/imagen.png*/
+        $this->globalVars->urlImagenesPromociones = "http://adminboard.test/images/";
+        // $this->globalVars->urlImagenesPromociones= "https://bellohogar.online/";
+
+        $this->globalVars->dirImagenesCategorias = "C:/laragon\www/adminboard/public/images/ImagenesCategorias/";
+        // $this->globalVars->dirImagenesCategorias = "/home/u629086351/domains/bellohogar.online/public_html/ImagenesCategorias/";
+
+        $this->globalVars->urlImagenesCategorias = "http://adminboard.test/images/";
+        // $this->globalVars->urlImagenesCategorias = "https://bellohogar.online//ImagenesCategorias/";
+
+        /*laravel no permite tablas con nombre en mayuscula y el proyecto ya esta con esta tabla con mayuscula*/
+        $this->globalVars->tablaImagenes = "Imagenes_productos";
     }
 
-    public function getUrlRoot()
-    {
-        return $this->urlRoot;
-    }
 
-    public function getDirCategorias()
+    public function getGlobalVars()
     {
-        return $this->dirImagenesCategorias;
-    }
-
-    public function getUrlCategorias()
-    {
-        return $this->urlImagenesCategorias;
-    }
-
-    public function getDirImagenes()
-    {
-        return $this->dirImagenes;
-    }
-
-    public function getNameTableImages()
-    {
-        return $this->tablaImagenes;
-    }
-
-    public function getUrlImagenes()
-    {
-        return $this->urlImagenes;
-    }
-
-    public function getUrlImagenesPromociones()
-    {
-        return $this->urlImagenesPromociones;
+        return $this->globalVars;
     }
 }

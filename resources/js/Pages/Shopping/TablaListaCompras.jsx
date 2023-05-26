@@ -62,12 +62,12 @@ const TablaListaCompras = (params) => {
         }).then((result) => {
             if (result.isConfirmed) {
                 loadingOn(id)
-                document.getElementById(id+'formEliminar').submit()
+                document.getElementById(id + 'formEliminar').submit()
             }
         })
     }
 
-    function preventDefault(e){
+    function preventDefault(e) {
         e.preventDefault()
     }
 
@@ -89,7 +89,7 @@ const TablaListaCompras = (params) => {
                 </thead>
                 <tbody>
                     {params.noCompras ?
-                        <div style={{ marginTop: '1.5em' }} className='container'>No se han encontrado resultados....</div>
+                        <tr style={{ marginTop: '1.5em' }} className='container'><td colSpan='9'>No se han encontrado resultados....</td></tr>
                         :
                         lista.map((item, index) => {
                             return (
@@ -129,7 +129,7 @@ const TablaListaCompras = (params) => {
                                         </div>
                                     </td>
                                     <td>
-                                        <form method="POST" id={item.id+"formEliminar"} onSubmit={preventDefault} action={route('shopping.store')}>
+                                        <form method="POST" id={item.id + "formEliminar"} onSubmit={preventDefault} action={route('shopping.store')}>
                                             <input type="hidden" name='_token' value={params.token} />
                                             <input type='hidden' name='cliente' value={item.cliente.cedula}></input>
                                             <input type='hidden' name='compran' value={item.compra_n}></input>

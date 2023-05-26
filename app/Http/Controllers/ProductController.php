@@ -13,33 +13,35 @@ use App\Traits\MetodosGenerales;
 class ProductController extends Controller
 {
     use MetodosGenerales;
-    public $global=null;
-    
+    public $global = null;
+
     public function __construct()
     {
         $this->global = new Globalvar();
     }
 
-    public function index(): Response
+    public function index()
     {
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $productos = DB::table('productos')->orderBy('id', 'desc')->paginate(100);
-        return Inertia::render('Product/Index', compact('auth', 'productos', 'url'));
+        $info = DB::table('info_pagina')->first();
+        return Inertia::render('Product/Index', compact('auth', 'productos', 'info', 'globalVars'));
     }
 
     public function allproducts()
     {
-       return response()->json($this->all_products(), 200, []);
+        return response()->json($this->all_products(), 200, []);
     }
 
     public function create(): Response
     {
         $categorias = DB::table('categorias')->get();
         $producto = ['id' => '', 'nombre' => '', 'imagen' => ''];
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $token = csrf_token();
-        return Inertia::render('Product/NewProduct', compact('producto', 'categorias', 'url', 'token'));
+        $info = DB::table('info_pagina')->first();
+        return Inertia::render('Product/NewProduct', compact('producto', 'categorias', 'globalVars', 'token', 'info'));
     }
 
     public function store(Request $request)
@@ -47,7 +49,7 @@ class ProductController extends Controller
         if ($request->hasFile('imagen')) {
             $file = $request->file('imagen');
             $fileName = time() . "-" . $file->getClientOriginalName();
-            $upload = $request->file('imagen')->move($this->global->getDirImagenes(), $fileName);
+            $upload = $request->file('imagen')->move($this->global->getGlobalVars()->dirImagenes, $fileName);
             DB::table('productos')->insert([
                 'referencia' => $request->referencia,
                 'categoria' => $request->categoria,
@@ -56,56 +58,66 @@ class ProductController extends Controller
                 'valor' => $request->valor
             ]);
             $id = DB::getPdo()->lastInsertId();
-            DB::table($this->global->getNameTableImages())->insert([
+            DB::table($this->global->getGlobalVars()->tablaImagenes)->insert([
                 'nombre_imagen' => $fileName,
                 'fk_producto' => $id
             ]);
 
             $auth = Auth()->user();
-            $producto = DB::table('productos')->join($this->global->getNameTableImages(), function (JoinClause $join) use ($id) {
-                $join->on('productos.id', '=', $this->global->getNameTableImages().".fk_producto")
+            $producto = DB::table('productos')->join($this->global->getGlobalVars()->tablaImagenes, function (JoinClause $join) use ($id) {
+                $join->on('productos.id', '=', $this->global->getGlobalVars()->tablaImagenes . ".fk_producto")
                     ->where('productos.id', '=', $id);
             })->get();
             $categorias = DB::table('categorias')->get();
-            $url = $this->global->getMyUrl();
+            $globalVars = $this->global->getGlobalVars();
             $token = csrf_token();
             $estado = "¡Producto registrado!";
-            $urlImagenes=$this->global->getUrlImagenes();
-            return Inertia::render('Product/NewProduct', compact('producto', 'categorias', 'url', 'estado', 'token', 'urlImagenes'));
+            $info = DB::table('info_pagina')->first();
+            return Inertia::render('Product/NewProduct', compact('producto', 'categorias', 'globalVars', 'estado', 'token', 'info'));
         }
     }
 
-    public function show(string $id)//: Response
+    public function show(string $id) //: Response
     {
         // Eliminar en este metodo porque no se conseguido reescribir el method get por delete en el form react....
-        $producto = DB::table('productos')->join($this->global->getNameTableImages(), function (JoinClause $join) use ($id) {
-            $join->on('productos.id', '=', $this->global->getNameTableImages().'.fk_producto')
-                ->where('productos.id', '=', $id);
-        })->get();
-        for($i=0; $i<count($producto); $i++){
-            unlink("images/Imagenes_productos/" . $producto[$i]->nombre_imagen);
-        }     
-        $deleted = DB::table('productos')->where('id', '=', $id)->delete();
-        $deleted1 = DB::table($this->global->getNameTableImages())->where('fk_producto', '=', $id)->delete();
+
+        $validarEliminar = DB::table('promociones')->where('ref_producto', '=', $id)->first();
+        if ($validarEliminar != null) {
+            $estado = "¡No puedes eliminar este producto porque esta en algunas promociones!";
+            $duracionAlert = 2000;
+        } else {
+            $estado = "¡Producto eliminado!";
+            $duracionAlert = 1000;
+            $producto = DB::table('productos')->join($this->global->getGlobalVars()->tablaImagenes, function (JoinClause $join) use ($id) {
+                $join->on('productos.id', '=', $this->global->getGlobalVars()->tablaImagenes . '.fk_producto')
+                    ->where('productos.id', '=', $id);
+            })->get();
+            $deleted = DB::table('productos')->where('id', '=', $id)->delete();
+            $deleted1 = DB::table($this->global->getGlobalVars()->tablaImagenes)->where('fk_producto', '=', $id)->delete();
+            $deleted2 = DB::table('preguntas_sobre_productos')->where('producto', '=', $id)->delete();
+            for ($i = 0; $i < count($producto); $i++) {
+                unlink($this->global->getGlobalVars()->dirImagenes . $producto[$i]->nombre_imagen);
+            }
+        }
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
-        $estado = "¡Producto eliminado!";
+        $globalVars = $this->global->getGlobalVars();
         $productos = DB::table('productos')->orderBy('id', 'desc')->paginate(100);
-        return Inertia::render('Product/Index', compact('auth', 'productos', 'url', 'deleted', 'estado'));
+        $info = DB::table('info_pagina')->first();
+        return Inertia::render('Product/Index', compact('auth', 'productos', 'estado', 'info', 'globalVars', 'duracionAlert'));
     }
 
-    public function edit(string $id): Response
+    public function edit(string $id)
     {
         //Este metodo devuelve un array, por tanto en componente react se debe tomar en los parms[0] y el id se registra en fk_producto.
-        $producto = DB::table('productos')->join($this->global->getNameTableImages(), function (JoinClause $join) use ($id) {
-            $join->on('productos.id', '=', $this->global->getNameTableImages().'.fk_producto')
+        $producto = DB::table('productos')->join($this->global->getGlobalVars()->tablaImagenes, function (JoinClause $join) use ($id) {
+            $join->on('productos.id', '=', $this->global->getGlobalVars()->tablaImagenes . '.fk_producto')
                 ->where('productos.id', '=', $id);
         })->get();
         $categorias = DB::table('categorias')->get();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $token = csrf_token();
-        $urlImagenes=$this->global->getUrlImagenes();
-        return Inertia::render('Product/NewProduct', compact('producto', 'categorias', 'url', 'token', 'urlImagenes'));
+        $info = DB::table('info_pagina')->first();
+        return Inertia::render('Product/NewProduct', compact('producto', 'categorias', 'globalVars', 'token', 'info'));
     }
 
     public function update(Request $request, string $id)
@@ -127,20 +139,21 @@ class ProductController extends Controller
             'descripcion' => $request->descripcion,
             'valor' => $request->valor,
         ]);
-        $producto = DB::table('productos')->join($this->global->getNameTableImages(), function (JoinClause $join) use ($id) {
-            $join->on('productos.id', '=', $this->global->getNameTableImages().'.fk_producto')
+        $producto = DB::table('productos')->join($this->global->getGlobalVars()->tablaImagenes, function (JoinClause $join) use ($id) {
+            $join->on('productos.id', '=', $this->global->getGlobalVars()->tablaImagenes . '.fk_producto')
                 ->where('productos.id', '=', $id);
         })->get();
         $categorias = DB::table('categorias')->get();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $estado = "¡Producto actualizado!";
-        $urlImagenes=$this->global->getUrlImagenes();
-        return Inertia::render('Product/NewProduct', compact('producto', 'categorias', 'url', 'estado', 'urlImagenes'));
+        $info = DB::table('info_pagina')->first();
+        $token = csrf_token();
+        return Inertia::render('Product/NewProduct', compact('producto', 'categorias', 'globalVars', 'estado', 'info', 'token'));
     }
 
     public function getimages(string $id)
     {
-        $imagenes = DB::table($this->global->getNameTableImages())->where('fk_producto', '=', $id)->get();
+        $imagenes = DB::table($this->global->getGlobalVars()->tablaImagenes)->where('fk_producto', '=', $id)->get();
         return response()->json($imagenes, 200, []);
     }
 
@@ -148,8 +161,8 @@ class ProductController extends Controller
     {
         if ($request->hasFile('image')) {
             $fileName = time() . "-" . $request->name;
-            $upload = $request->file('image')->move($this->global->getDirImagenes(), $fileName);
-            DB::table($this->global->getNameTableImages())->insert([
+            $upload = $request->file('image')->move($this->global->getGlobalVars()->dirImagenes, $fileName);
+            DB::table($this->global->getGlobalVars()->tablaImagenes)->insert([
                 'nombre_imagen' => $fileName,
                 'fk_producto' => $id
             ]);
@@ -159,8 +172,8 @@ class ProductController extends Controller
 
     public function deleteImage(Request $request, string $id)
     {
-        unlink($this->global->getDirImagenes() . $request->nombre);
-        DB::table($this->global->getNameTableImages())->where('id', '=', $id)->delete();
+        unlink($this->global->getGlobalVars()->dirImagenes . $request->nombre);
+        DB::table($this->global->getGlobalVars()->tablaImagenes)->where('id', '=', $id)->delete();
         return response()->json('ok', 200, []);
     }
 }

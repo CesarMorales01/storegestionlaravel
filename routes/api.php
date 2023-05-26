@@ -5,6 +5,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ClientesController;
 use App\Http\Controllers\ClientesImcompletosController;
+use App\Http\Controllers\NoSessionController;
+use App\Http\Controllers\SettingController;
 use App\Http\Controllers\ShoppingController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -19,4 +21,6 @@ Route::get('/customer/getdatosbyced/{ced}', [ClientesController::class, 'getdato
 Route::get('/customer/allclients/', [ClientesController::class, 'allclients']);
 Route::get('/registerincomplete/allclients/', [ClientesImcompletosController::class, 'allclients']);
 Route::get('/shopping/allshopping/', [ShoppingController::class, 'allshopping']);
+
+Route::get('/setting/getlogo', [SettingController::class, 'getlogo']);
 

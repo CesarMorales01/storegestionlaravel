@@ -21,23 +21,25 @@ class PromocionesController extends Controller
     public function index(): Response
     {
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
         $promos = DB::table('promociones')->orderBy('id', 'desc')->get();
-        $urlImagenesPromociones = $this->global->getUrlImagenesPromociones();
-        return Inertia::render('Promociones/Promociones', compact('auth', 'promos', 'url', 'urlImagenesPromociones'));
+        $globalVars = $this->global->getGlobalVars();
+        $info = DB::table('info_pagina')->first();      
+        return Inertia::render('Promociones/Promociones', compact('auth', 'promos', 'globalVars', 'info'));
     }
 
     public function create(): Response
     {
-        $productos = DB::table('productos')->join($this->global->getNameTableImages(), function (JoinClause $join) {
-            $join->on('productos.id', '=', $this->global->getNameTableImages() . '.fk_producto');
-        })->get();
+        $productos=DB::table('productos')->get();
+        foreach($productos as $item){
+            $imagen=DB::table($this->global->getGlobalVars()->tablaImagenes)->where('fk_producto', '=', $item->id)->first();
+            $item->imagen=$imagen;
+        }
         $promo = ['id' => '', 'descripcion' => '', 'imagen' => ''];
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $token = csrf_token();
         $auth = Auth()->user();
-        $urlImagenes = $this->global->getUrlImagenes();
-        return Inertia::render('Promociones/NewPromo', compact('productos', 'promo', 'url', 'token', 'auth', 'urlImagenes'));
+        $info = DB::table('info_pagina')->first();      
+        return Inertia::render('Promociones/NewPromo', compact('productos', 'promo', 'globalVars', 'token', 'auth', 'info'));
     }
 
     public function store(Request $request): Response
@@ -45,8 +47,8 @@ class PromocionesController extends Controller
         $fileName = "";
         if ($request->hasFile('imagen')) {
             $file = $request->file('imagen');
-            $fileName = $this->global->getNameTableImages() . "/" . time() . "-" . $request->nombreImagen;
-            $upload = $request->file('imagen')->move($this->global->getDirImagenes(), $fileName);
+            $fileName = $this->global->getGlobalVars()->tablaImagenes . "/" . time() . "-" . $request->nombreImagen;
+            $upload = $request->file('imagen')->move($this->global->getGlobalVars()->dirImagenes, $fileName);
         } else {
             $fileName = $request->nombreImagen;
         }
@@ -56,12 +58,11 @@ class PromocionesController extends Controller
             'ref_producto' => $request->ref_producto
         ]);
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $promos = DB::table('promociones')->orderBy('id', 'desc')->get();
-        $urlImagenes = $this->global->getUrlImagenes();
-        $urlImagenesPromociones = $this->global->getUrlImagenesPromociones();
         $estado = "¡Promoción creada!";
-        return Inertia::render('Promociones/Promociones', compact('auth', 'promos', 'url', 'urlImagenes', 'urlImagenesPromociones', 'estado'));
+        $info = DB::table('info_pagina')->first(); 
+        return Inertia::render('Promociones/Promociones', compact('auth', 'promos', 'globalVars', 'estado', 'info'));
     }
 
     public function show(string $id)
@@ -70,35 +71,33 @@ class PromocionesController extends Controller
         $promo = DB::table('promociones')->where('id', '=', $id)->first();
         
 
-        $token = explode($this->global->getNameTableImages() . "/", $promo->imagen);
-        $imagen = DB::table($this->global->getNameTableImages())->where('nombre_imagen', '=', $token[1])->first();
+        $token = explode($this->global->getGlobalVars()->tablaImagenes . "/", $promo->imagen);
+        $imagen = DB::table($this->global->getGlobalVars()->tablaImagenes)->where('nombre_imagen', '=', $token[1])->first();
         if (!$imagen) {
             //return response()->json($this->global->getDirImagenes().$token[1], 200, []);
-            unlink($this->global->getDirImagenes().$token[1]);
+            unlink($this->global->getGlobalVars()->dirImagenes.$token[1]);
         }
         $deleted = DB::table('promociones')->where('id', '=', $id)->delete();
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $promos = DB::table('promociones')->orderBy('id', 'desc')->get();
-        $urlImagenes = $this->global->getUrlImagenes();
-        $urlImagenesPromociones = $this->global->getUrlImagenesPromociones();
         $estado = "¡Promoción eliminada!";
-        return Inertia::render('Promociones/Promociones', compact('auth', 'promos', 'url', 'urlImagenes', 'urlImagenesPromociones', 'estado'));
+        $info = DB::table('info_pagina')->first(); 
+        return Inertia::render('Promociones/Promociones', compact('auth', 'promos', 'globalVars', 'estado', 'info'));
     
     }
 
     public function edit(string $id): Response
     {
-        $productos = DB::table('productos')->join($this->global->getNameTableImages(), function (JoinClause $join) {
-            $join->on('productos.id', '=', $this->global->getNameTableImages() . '.fk_producto');
+        $productos = DB::table('productos')->join($this->global->getGlobalVars()->tablaImagenes, function (JoinClause $join) {
+            $join->on('productos.id', '=', $this->global->getGlobalVars()->tablaImagenes . '.fk_producto');
         })->get();
         $promo = DB::table('promociones')->where('id', '=', $id)->first();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $token = csrf_token();
         $auth = Auth()->user();
-        $urlImagenes = $this->global->getUrlImagenes();
-        $urlImagenesPromociones = $this->global->getUrlImagenesPromociones();
-        return Inertia::render('Promociones/NewPromo', compact('productos', 'promo', 'url', 'token', 'auth', 'urlImagenes', 'urlImagenesPromociones'));
+        $info = DB::table('info_pagina')->first(); 
+        return Inertia::render('Promociones/NewPromo', compact('productos', 'promo', 'globalVars', 'token', 'auth', 'info'));
     }
 
     public function update(Request $request, string $id)
@@ -116,14 +115,13 @@ class PromocionesController extends Controller
         $fileName = "";
         if ($request->hasFile('imagen')) {
             $file = $request->file('imagen');
-            $fileName = $this->global->getNameTableImages() . "/" . time() . "-" . $request->nombreImagen;
-            $upload = $request->file('imagen')->move($this->global->getDirImagenes(), $fileName);
-            $token = explode($this->global->getNameTableImages() . "/", $request->nombreImagenAnterior);
-            $imagen = DB::table($this->global->getNameTableImages())->where('nombre_imagen', '=', $token[1])->first();
+            $fileName = $this->global->getGlobalVars()->tablaImagenes . "/" . time() . "-" . $request->nombreImagen;
+            $upload = $request->file('imagen')->move($this->global->getGlobalVars()->dirImagenes, $fileName);
+            $token = explode($this->global->getGlobalVars()->tablaImagenes . "/", $request->nombreImagenAnterior);
+            $imagen = DB::table($this->global->getGlobalVars()->tablaImagenes)->where('nombre_imagen', '=', $token[1])->first();
             if ($imagen == null) {
-                unlink($this->global->getDirImagenes() . $token[1]);
+                unlink($this->global->getGlobalVars()->dirImagenes . $token[1]);
             }
-            // $this->validarImgBorrarEnProductos($request->nombreImagenAnterior);
         } else {
             $fileName = $request->nombreImagen;
         }
@@ -135,16 +133,10 @@ class PromocionesController extends Controller
         ]);
 
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $promos = DB::table('promociones')->orderBy('id', 'desc')->get();
-        $urlImagenes = $this->global->getUrlImagenes();
-        $urlImagenesPromociones = $this->global->getUrlImagenesPromociones();
         $estado = "¡Promoción actualizada!";
-        return Inertia::render('Promociones/Promociones', compact('auth', 'promos', 'url', 'urlImagenes', 'urlImagenesPromociones', 'estado'));
-    }
-
-    public function validarImgBorrarEnProductos(string $img)
-    {
-        return response()->json("here" . $img, 200, []);
+        $info = DB::table('info_pagina')->first(); 
+        return Inertia::render('Promociones/Promociones', compact('auth', 'promos', 'globalVars', 'estado', 'info'));
     }
 }

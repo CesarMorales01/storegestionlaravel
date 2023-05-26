@@ -23,7 +23,7 @@ const Index = (params) => {
             Swal.fire({
                 title: params.estado,
                 icon: params.estado.includes('elimin') ? 'warning' : 'success',
-                timer: 1000,
+                timer: !params.duracionAlert ? 1000 : params.duracionAlert
             })
         }
     }, [])
@@ -54,7 +54,7 @@ const Index = (params) => {
     function buscarInAllProducts(e) {
         cambioNombre(e)
         if (productos.length == 0) {
-            const url = params.url + 'api/product/allproducts'
+            const url = params.globalVars.myUrl + 'api/product/allproducts'
             fetch(url)
                 .then((response) => {
                     return response.json()
@@ -65,7 +65,7 @@ const Index = (params) => {
     }
 
     return (
-        <AuthenticatedLayout user={params.auth} >
+        <AuthenticatedLayout user={params.auth} info={params.info} url={params.globalVars.urlRoot} urlImagenes={params.globalVars.urlImagenes}>
             <Head title="Productos" />
             <div className='container'>
                 <div align="center" className="row justify-content-center">

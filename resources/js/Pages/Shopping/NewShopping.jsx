@@ -61,7 +61,12 @@ const NuevaCompra = (params) => {
 
     function totalizarModoDepago(subtotal) {
         setCheckedRadioPagos()
-        return parseFloat(params.datosPagina.comision) * parseFloat(subtotal)
+        let totalModoDepago=0;
+        if (datosCompra.medio_de_pago !== 'Contraentrega') {
+            const porcentaje= params.datosPagina.comision/100
+            totalModoDepago= parseFloat(porcentaje) * parseFloat(subtotal)
+        }            
+        return totalModoDepago 
     }
 
     function setCheckedRadioPagos() {
@@ -148,7 +153,7 @@ const NuevaCompra = (params) => {
     }
 
     function fetchRegistrarCompra() {
-        const url = params.url + 'shopping/save?_token=' + params.token
+        const url = params.globalVars.myUrl + 'shopping/save?_token=' + params.token
         fetch(url, {
             method: 'POST',
             body: JSON.stringify(datosCompra),
@@ -298,11 +303,10 @@ const NuevaCompra = (params) => {
     }
 
     return (
-        <AuthenticatedLayout user={params.auth} >
+        <AuthenticatedLayout user={params.auth} info={params.datosPagina} urlImagenes={params.globalVars.urlImagenes}>
             <Head title="Productos" />
             <div className="container">
                 <a id='goShoppingIndex' style={{ display: 'none' }} href={route('shopping.index')}></a>
-                
                     <div style={{ marginTop: '0.2em' }} className='row justify-content-center'>
                         <div className='col-lg-6 col-md-6 col-sm-12 col-12'>
                             <h6 style={{ marginTop: '0.2em' }}>Fecha de compra:</h6>

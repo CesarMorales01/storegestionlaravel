@@ -41,7 +41,7 @@ const ListaCompras = (params) => {
 
  function buscarInAllCompras(e) {
   if (lista.length == 0) {
-      const url = params.url + 'api/shopping/allshopping'
+      const url = params.globalVars.myUrl + 'api/shopping/allshopping'
       fetch(url)
           .then((response) => {
               return response.json()
@@ -54,7 +54,7 @@ const ListaCompras = (params) => {
 }
 
   return (
-    <AuthenticatedLayout user={params.auth} >
+    <AuthenticatedLayout user={params.auth} info={params.info} urlImagenes={params.globalVars.urlImagenes}>
             <Head title="Productos" />
             <div className='container'>
                 <div align="center" className="row justify-content-center">
@@ -78,7 +78,7 @@ const ListaCompras = (params) => {
                     </div>
                 </div>
                 <h1 style={{ marginTop: '0.5em', fontSize: '1.5em' }} id="titulo" className="text-center">Lista de compras</h1>
-                <TablaListaCompras token={params.token} url={params.url} pagination={params.compras.links} noCompras={noCompras} lista={filterLista}/>
+                <TablaListaCompras token={params.token} url={params.globalVars.myUrl} pagination={params.compras.links} noCompras={noCompras} lista={filterLista}/>
             </div>
         </AuthenticatedLayout>
   )

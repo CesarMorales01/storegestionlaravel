@@ -4,6 +4,15 @@ use Illuminate\Support\Facades\DB;
 
 trait MetodosGenerales{
 
+    public function get_telefonos_pagina(){
+        $telefonos=[];
+        $tels = DB::table('telefonos_pagina')->get();
+        foreach($tels as $telefono){
+            $telefonos[]=$telefono->telefono;
+        }
+        return $telefonos;
+    }
+
     public function ingresar_telefonos($request){
         DB::table('telefonos_clientes')->where('cedula', '=', $request->cedula)->delete();
         for ($i = 0; $i < count($request->telefonos); $i++) {

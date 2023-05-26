@@ -12,9 +12,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $user= User::create([
-            'name'=>'Delcy2023',
-            'email'=>'cezar_mh86@hotmail.com',
+            'name'=>'Delcy',
+            'email'=>'Jusamstore@hotmail.com',
             'password'=> Hash::make('Samjo3007')
+            /*
+            'name'=>'Cesar',
+            'email'=>'cezar_mh86@hotmail.com',
+            'password'=> Hash::make('Pokemongo2019')
+            */
         ]);
     }
 }

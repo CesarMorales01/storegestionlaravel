@@ -6,9 +6,21 @@ export const TablaProductos = (params) => {
 
     const glob = new GlobalFunctions()
 
+
+    function setSizeText(id){
+        const text=document.getElementById('textarea'+id)
+        const letras = text.value
+        const size=Math.round(letras.length/44)
+        text.rows=size+1
+    }
+
+    function defaultSize(id){
+        document.getElementById('textarea'+id).rows = "3"
+    }
+
     return (
         <div className='container table-responsive'>
-            <table className="table table-striped">
+            <table className="table table-striped ">
                 <thead>
                     <tr>
                         <th scope="col">Codigo</th>
@@ -20,7 +32,7 @@ export const TablaProductos = (params) => {
                 </thead>
                 <tbody>
                     {params.noProductos ?
-                        <div style={{ marginTop: '1.5em' }} className='container'>No se han encontrado resultados....</div>
+                        <tr style={{ marginTop: '1.5em' }} className='container'><td colSpan='5'>No se han encontrado resultados....</td></tr>
                         :
                         params.productos.map((item, index) => {
 
@@ -38,8 +50,8 @@ export const TablaProductos = (params) => {
                                     <td>{item.categoria}</td>
                                     <td>{item.nombre}</td>
                                     <td>
-                                        <div className='divScroll'>
-                                            {item.descripcion}
+                                        <div>
+                                        <textarea readOnly cols='44' onMouseOut={()=>defaultSize(item.id)} onMouseOver={()=>setSizeText(item.id)} id={'textarea'+item.id} defaultValue={item.descripcion} rows='3'></textarea>
                                         </div>
                                     </td>
                                     <td>${glob.formatNumber(item.valor)}</td>

@@ -9,6 +9,7 @@ import Swal from 'sweetalert2'
 import MasImagenes from './MasImagenes';
 
 const NewProduct = (params) => {
+
     const glob = new GlobalFunctions()
     const [producto, setProducto] = useState({
         id: '',
@@ -214,8 +215,7 @@ const NewProduct = (params) => {
 
     return (
         <AuthenticatedLayout
-            user={params.auth.user}
-        >
+            user={params.auth.user} info={params.info} url={params.globalVars.urlRoot} urlImagenes={params.globalVars.urlImagenes} >
             <Head title="Producto" />
             <div className="container justify-content-justify">
                 <h1 style={{ marginTop: '0.5em', fontSize: '1.5em' }} id="titulo" className="text-center"> {producto.id == '' ? 'Ingresar' : 'Editar'} producto</h1>
@@ -250,7 +250,7 @@ const NewProduct = (params) => {
                         <div className="col-lg-6 col-md-6 col-sm-12 col-12" >
                             <input name='imagen' data-toggle="tooltip" id='fileImagen' title="Ingresa imagenes con fondo blanco, aprox 500x500 mp." type="file" disabled={producto.id == '' ? false : true} onChange={mostrarImagen} />
                             <br /><br />
-                            <img onLoad={spinOff} className='border' id="img" width="140px" height="150px" src={params.producto.imagen == '' ? params.url + "/Imagenes_config/" + producto.imagen : params.urlImagenes +"/"+ producto.imagen} />
+                            <img onLoad={spinOff} className='border' id="img" width="140px" height="150px" src={params.producto.imagen == '' ? params.globalVars.urlRoot + "/Imagenes_config/" + producto.imagen : params.globalVars.urlImagenes +"/"+ producto.imagen} />
                             <span id='spanvalidandoNombreImagen' style={{ display: '' }} className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <br />
                             {producto.id == '' ? '' : producto.imagen}
@@ -288,7 +288,7 @@ const NewProduct = (params) => {
                                 <a href='#imagenes' style={{ marginLeft: '0.2em' }}>Subir más imagenes</a>
                             </SecondaryButton>
                             <br /><br />
-                            <button disabled={producto.id == '' ? true : false} className="btn btn-primary" >Preguntas sobre este producto</button>
+                            <a href={route('question.edit', producto.id)} disabled={producto.id == '' ? true : false} className="btn btn-primary" >Preguntas sobre este producto</a>
                             <br /><br />
                         </div>
                     </div>
@@ -297,7 +297,7 @@ const NewProduct = (params) => {
                 <a id='eliminar' href={route('product.show', producto.id)}></a>
             </div>
             <div style={{ display: producto.id=='' ? 'none' : 'inline' }}>
-            <MasImagenes token={params.token} id={producto.id} nombre={producto.nombre} url={params.url} urlImagenes={params.urlImagenes}/>
+            <MasImagenes token={params.token} id={producto.id} nombre={producto.nombre} globalVars={params.globalVars}/>
             </div>
         </AuthenticatedLayout>
     )

@@ -19,7 +19,7 @@ class QuestionController extends Controller
     public function index()
     {
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $preguntas = DB::table('preguntas_sobre_productos')->orderBy('fecha', 'desc')->paginate(100);
         foreach($preguntas as $item){
             $cliente=DB::table('clientes')->where('cedula', '=', $item->cliente)->first();
@@ -28,12 +28,14 @@ class QuestionController extends Controller
             $item->producto=$producto;
         }
         $token = csrf_token();
-        return Inertia::render('Question/Questions', compact('auth', 'preguntas', 'url', 'token'));
+        $info = DB::table('info_pagina')->first();      
+        $buscado=false;
+        return Inertia::render('Question/Questions', compact('auth', 'preguntas', 'globalVars', 'token', 'info', 'buscado'));
     }
 
     public function create()
     {
-        //
+        
     }
 
     public function store(Request $request)
@@ -45,7 +47,7 @@ class QuestionController extends Controller
     {
         DB::table('preguntas_sobre_productos')->where('id', '=', $id)->delete();
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $preguntas = DB::table('preguntas_sobre_productos')->orderBy('fecha', 'desc')->paginate(100);
         foreach($preguntas as $item){
             $cliente=DB::table('clientes')->where('cedula', '=', $item->cliente)->first();
@@ -54,12 +56,27 @@ class QuestionController extends Controller
             $item->producto=$producto;
         }
         $token = csrf_token();
-        return Inertia::render('Question/Questions', compact('auth', 'preguntas', 'url', 'token'));
+        $info = DB::table('info_pagina')->first();
+        return Inertia::render('Question/Questions', compact('auth', 'preguntas', 'globalVars', 'token', 'info'));
     }
 
     public function edit(string $id)
     {
-        //
+        $buscado=false;
+        $auth = Auth()->user();
+        $globalVars = $this->global->getGlobalVars();
+        $preguntas = DB::table('preguntas_sobre_productos')->where('producto', '=', $id)->paginate(100);
+        foreach($preguntas as $item){
+            $cliente=DB::table('clientes')->where('cedula', '=', $item->cliente)->first();
+            $item->cliente=$cliente;
+            $producto=DB::table('productos')->where('id', '=', $item->producto)->first();
+            $item->producto=$producto;
+            $buscado=true;
+        }
+        $token = csrf_token();
+        $info = DB::table('info_pagina')->first();
+        
+        return Inertia::render('Question/Questions', compact('auth', 'preguntas', 'globalVars', 'token', 'info', 'buscado'));
     }
 
     public function update(Request $request, string $id)
@@ -72,7 +89,7 @@ class QuestionController extends Controller
         //
     }
 
-    public function setanswer(string $id, string $resp){
+    public function setanswer(string $id, string $resp=''){
         DB::table('preguntas_sobre_productos')->where('id', '=', $id)->update([
             'respuesta'=>$resp
         ]);

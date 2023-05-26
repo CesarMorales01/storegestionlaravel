@@ -228,7 +228,7 @@ const NewClient = (params) => {
     }
 
     function validarUsuarioExistente() {
-        const url = params.url + 'api/customer/getdatosbyced/' + newDatosPersonales.cedula
+        const url = params.globalVars.myUrl + 'api/customer/getdatosbyced/' + newDatosPersonales.cedula
         fetch(url)
             .then((response) => {
                 return response.json()
@@ -296,7 +296,7 @@ const NewClient = (params) => {
 
     return (
         <AuthenticatedLayout
-            user={params.auth}
+            user={params.auth} info={params.info} urlImagenes={params.globalVars.urlImagenes}
         >
             <Head title="Clientes" />
             <div className="container">

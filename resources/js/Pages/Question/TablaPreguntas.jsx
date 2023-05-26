@@ -81,7 +81,7 @@ const TablaPreguntas = (params) => {
                 </thead>
                 <tbody>
                     {params.noLista ?
-                        <div style={{ marginTop: '1.5em' }} className='container'>No se han encontrado resultados....</div>
+                        <tr style={{ marginTop: '1.5em' }} className='container'><td colSpan='5'>No se han encontrado resultados....</td></tr>
                         :
                         params.lista.map((item, index) => {
                             return (

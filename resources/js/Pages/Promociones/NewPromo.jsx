@@ -30,7 +30,7 @@ const NuevaPromocion = (params) => {
                 imagen: '',
                 codigoPromo: ''
             }))
-            document.getElementById('img').src = params.url + '/Imagenes_config/noPreview.jpg'
+            document.getElementById('img').src = params.globalVars.urlRoot + '/Imagenes_config/noPreview.jpg'
         } else {
             setPromo((valores) => ({
                 ...valores,
@@ -39,7 +39,7 @@ const NuevaPromocion = (params) => {
                 codigoProducto: params.promo.ref_producto,
                 codigoPromo: params.promo.id
             }))
-            document.getElementById('img').src = params.urlImagenesPromociones + params.promo.imagen
+            document.getElementById('img').src = params.globalVars.urlImagenesPromociones + params.promo.imagen
         }
     }
 
@@ -75,10 +75,10 @@ const NuevaPromocion = (params) => {
         let imagen = ''
         let codigo = ''
         for (let i = 0; i < params.productos.length; i++) {
-            if (params.productos[i].fk_producto == e.target.value) {
-                codigo = params.productos[i].fk_producto
+            if (params.productos[i].id == e.target.value) {
+                codigo = params.productos[i].id
                 nombre = params.productos[i].nombre + ': $ ' + glob.formatNumber(params.productos[i].valor)
-                imagen = params.productos[i].nombre_imagen
+                imagen = params.productos[i].imagen.nombre_imagen
             }
         }
         setPromo((valores) => ({
@@ -88,7 +88,7 @@ const NuevaPromocion = (params) => {
             codigoProducto: codigo
         }))
         document.getElementById("fileImg").value = null
-        document.getElementById('img').src = params.urlImagenes + imagen
+        document.getElementById('img').src = params.globalVars.urlImagenes + imagen
     }
 
     function getFileSize() {
@@ -141,7 +141,7 @@ const NuevaPromocion = (params) => {
     }
 
     return (
-        <AuthenticatedLayout user={params.auth} >
+        <AuthenticatedLayout user={params.auth} info={params.info} url={params.globalVars.urlRoot} urlImagenes={params.globalVars.urlImagenes}>
             <Head title="Productos" />
             <a id='btnEliminar' href={route('promo.destroy', promo.codigoPromo)} style={{ display: 'none' }}></a>
             <div className='container'>
@@ -180,7 +180,7 @@ const NuevaPromocion = (params) => {
                                 <p style={{ color: 'red', margin: '1em' }}>{mensaje}</p>
                             </div>
                             <div className='col-lg-6 col-md-6 col-sm-12 col-12'>
-                                <img id="img" width="200px" height="200px" src={params.promo.imagen == '' ? params.url + '/Imagenes_config/noPreview.jpg' : params.urlImagenes + params.promo.imagen} />
+                                <img id="img" width="200px" height="200px" src={params.promo.imagen == '' ? params.globalVars.urlRoot + '/Imagenes_config/noPreview.jpg' : params.globalVars.urlImagenes + params.promo.imagen} />
                             </div>
                             <br />
                             <div style={{ marginTop: '1em' }} className="row justify-content-center" >

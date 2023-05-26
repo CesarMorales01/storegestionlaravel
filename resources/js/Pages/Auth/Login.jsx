@@ -8,8 +8,9 @@ import TextInput from '@/Components/TextInput';
 import { Head, Link, useForm } from '@inertiajs/react';
 import GlobalFunctions from '../services/GlobalFunctions';
 
-export default function Login({ status, canResetPassword }) {
-    const glob= new GlobalFunctions();
+export default function Login({ status, canResetPassword, info }) {
+
+    const glob = new GlobalFunctions();
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
@@ -23,8 +24,8 @@ export default function Login({ status, canResetPassword }) {
         };
     }, []);
 
-    function validarRemember(){
-        if(glob.getCookie('email')!=''){
+    function validarRemember() {
+        if (glob.getCookie('email') != '') {
             setData((valores) => ({
                 ...valores,
                 email: glob.getCookie('email'),
@@ -40,11 +41,14 @@ export default function Login({ status, canResetPassword }) {
     };
 
     return (
-        <GuestLayout>
+        <GuestLayout >
             <Head title="Log in" />
-
             {status && <div className="mb-4 font-medium text-sm text-green-600">{status}</div>}
-
+            <div className='grid place-items-center m-3'>
+                <Link href="/">
+                    <img className='img-fuild rounded' width="120em" height="120em" src={info.length == 0 ? '' : info.globalVars.urlImagenes + info.logo} />
+                </Link>
+            </div>
             <form onSubmit={submit}>
                 <div>
                     <InputLabel htmlFor="email" value="Email" />
@@ -99,8 +103,7 @@ export default function Login({ status, canResetPassword }) {
                             Forgot your password?
                         </Link>
                     )}
-
-                    <PrimaryButton className="ml-4" disabled={processing}>
+                    <PrimaryButton style={{ backgroundColor: info.color_pagina }} className="ml-4" disabled={processing}>
                         Log in
                     </PrimaryButton>
                 </div>

@@ -3,8 +3,6 @@ import { useState, useEffect } from 'react';
 import GlobalFunctions from '../services/GlobalFunctions';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
-import PrimaryButton from '@/Components/PrimaryButton';
-import SecondaryButton from '@/Components/SecondaryButton';
 import Swal from 'sweetalert2'
 import TablaClientes from './TablaClientes';
 
@@ -20,7 +18,7 @@ const Clientes = (params) => {
             Swal.fire({
                 title: params.estado,
                 icon: params.estado.includes('elimin') ? 'warning' : 'success',
-                timer: 1000,
+                timer: !params.duracionAlert ? 1000 : params.duracionAlert
             })
         }
     }, [])
@@ -59,7 +57,7 @@ const Clientes = (params) => {
     function buscarClientesCompletos(e) {
         cambioNombre(e)
         if (clientes.length == 0) {
-            const url = params.url + 'api/customer/allclients'
+            const url = params.globalVars.myUrl + 'api/customer/allclients'
             fetch(url)
                 .then((response) => {
                     return response.json()
@@ -71,7 +69,7 @@ const Clientes = (params) => {
 
     return (
         <AuthenticatedLayout
-            user={params.auth}
+            user={params.auth} info={params.info} urlImagenes={params.globalVars.urlImagenes}
         >
             <Head title="Clientes" />
             <div style={{ marginTop: '0.2em' }} align="center" className="container">

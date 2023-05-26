@@ -23,55 +23,57 @@ class CategoryController extends Controller
     public function index(): Response
     {
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
         $categorias = DB::table('categorias')->orderBy('id', 'desc')->get();
-        $urlImagenes = $this->global->getUrlCategorias();
+        $globalVars = $this->global->getGlobalVars();
         $token = csrf_token();
-        return Inertia::render('Category/Categories', compact('auth', 'categorias', 'url', 'urlImagenes', 'token'));
+        $info = DB::table('info_pagina')->first();
+        return Inertia::render('Category/Categories', compact('auth', 'categorias', 'globalVars', 'token', 'info'));
     }
 
-    public function create() //: Response
+    public function create()
     {
-        $category = ['id' => '', 'nombre' => '', 'imagen' => ''];
-        $url = env('MY_URL');
-        $token = csrf_token();
-        // return Inertia::render('Category/NewCategory', compact('category', 'url', 'token', 'urlImagenes'));
     }
-
 
     public function store(Request $request)
     {
         if ($request->hasFile('imagen')) {
             $file = $request->file('imagen');
             $fileName = "ImagenesCategorias/" . time() . "-" . $file->getClientOriginalName();
-            $upload = $request->file('imagen')->move($this->global->getDirCategorias(), $fileName);
+            $upload = $request->file('imagen')->move($this->global->getGlobalVars()->dirImagenesCategorias, $fileName);
             DB::table('categorias')->insert([
                 'nombre' => $request->categoria,
                 'imagen' => $fileName
             ]);
             $auth = Auth()->user();
-            $url = $this->global->getMyUrl();
             $categorias = DB::table('categorias')->orderBy('id', 'desc')->get();
-            $urlImagenes = $this->global->getUrlCategorias();
+            $globalVars = $this->global->getGlobalVars();
             $token = csrf_token();
             $estado = "¡Categoria creada!";
-            return Inertia::render('Category/Categories', compact('auth', 'categorias', 'url', 'urlImagenes', 'token', 'estado'));
+            $info = DB::table('info_pagina')->first();
+            return Inertia::render('Category/Categories', compact('auth', 'categorias', 'globalVars', 'token', 'estado', 'info'));
         }
     }
 
     public function show(string $id)
-    {
-        $cate= DB::table('categorias')->where('id', $id)->first();
-        $token = explode("ImagenesCategorias/", $cate->imagen);
-        unlink($this->global->getDirCategorias() . $token[1]);
-        $deleted = DB::table('categorias')->where('id', '=', $id)->delete();
+    {   
+        $cate = DB::table('categorias')->where('id', $id)->first();
+        $validarEnproductos=DB::table('productos')->where('categoria', '=', $cate->nombre)->first();
+        if($validarEnproductos!=null){
+            $estado = "¡No puedes eliminar esta categoria porque esta en algunos productos!";
+            $duracionAlert=2000;
+        }else{
+            $token = explode("ImagenesCategorias/", $cate->imagen);
+            unlink($this->global->getGlobalVars()->dirImagenesCategorias . $token[1]);
+            $deleted = DB::table('categorias')->where('id', '=', $id)->delete();
+            $estado = "¡Categoria eliminada!";
+            $duracionAlert=1000;
+        }
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
         $categorias = DB::table('categorias')->orderBy('id', 'desc')->get();
-        $urlImagenes = $this->global->getUrlCategorias();
+        $globalVars = $this->global->getGlobalVars();
+        $info = DB::table('info_pagina')->first();
         $token = csrf_token();
-        $estado = "¡Categoria eliminada!";
-        return Inertia::render('Category/Categories', compact('auth', 'categorias', 'url', 'urlImagenes', 'token', 'estado'));
+        return Inertia::render('Category/Categories', compact('auth', 'categorias', 'globalVars', 'token', 'estado', 'info', 'duracionAlert'));
     }
 
 
@@ -89,32 +91,31 @@ class CategoryController extends Controller
 
     public function destroy(string $id)
     {
-        
     }
 
-    public function actualizar(Request $request, string $id):Response
+    public function actualizar(Request $request, string $id): Response
     {
         if ($request->hasFile('imagen')) {
             $file = $request->file('imagen');
             $fileName = "ImagenesCategorias/" . time() . "-" . $file->getClientOriginalName();
-            $upload = $request->file('imagen')->move($this->global->getDirCategorias(), $fileName);
+            $upload = $request->file('imagen')->move($this->global->getGlobalVars()->dirImagenesCategorias, $fileName);
             DB::table('categorias')->where('id', $id)->update([
                 'nombre' => $request->categoria,
                 'imagen' => $fileName
             ]);
-            $token = explode("ImagenesCategorias/", $request->nombreImagenAnterior);
-            unlink($this->global->getDirCategorias() . $token[1]);
-        }else{
+            $token = explode("magenesCategorias/", $request->nombreImagenAnterior);
+            unlink($this->global->getGlobalVars()->dirImagenesCategorias . $token[1]);
+        } else {
             DB::table('categorias')->where('id', $id)->update([
                 'nombre' => $request->categoria
             ]);
         }
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $categorias = DB::table('categorias')->orderBy('id', 'desc')->get();
-        $urlImagenes = $this->global->getUrlCategorias();
+        $info = DB::table('info_pagina')->first();
         $token = csrf_token();
         $estado = "¡Categoria actualizada!";
-        return Inertia::render('Category/Categories', compact('auth', 'categorias', 'url', 'urlImagenes', 'token', 'estado'));
+        return Inertia::render('Category/Categories', compact('auth', 'categorias', 'globalVars', 'token', 'estado', 'info'));
     }
 }

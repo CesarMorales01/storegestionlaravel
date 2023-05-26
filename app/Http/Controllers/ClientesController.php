@@ -20,24 +20,26 @@ class ClientesController extends Controller{
     public function index()
     {
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $clientes = DB::table('clientes')->paginate(100);
         foreach ($clientes as $cliente) {
             $telefono = DB::table('telefonos_clientes')->where('cedula', '=', $cliente->cedula)->get();
             $cliente->telefonos = $telefono;
         }
-        return Inertia::render('Customer/Customers', compact('auth', 'clientes', 'url'));
+        $info = DB::table('info_pagina')->first();      
+        return Inertia::render('Customer/Customers', compact('auth', 'clientes', 'globalVars', 'info'));
     }
 
     public function create()
     {
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
         $cliente = ['id' => '', 'cedula' => '', 'email' => ''];
         $deptos = DB::table('departamentos')->get();
         $municipios = DB::table('municipios')->get();
         $token = csrf_token();
-        return Inertia::render('Customer/NewClient', compact('auth', 'cliente', 'url', 'deptos', 'municipios', 'token'));
+        $info = DB::table('info_pagina')->first();      
+        $globalVars = $this->global->getGlobalVars();
+        return Inertia::render('Customer/NewClient', compact('auth', 'cliente', 'globalVars', 'deptos', 'municipios', 'token', 'info'));
     }
 
 
@@ -57,14 +59,15 @@ class ClientesController extends Controller{
         $this->ingresar_telefonos($request);
         $this->ingresarCrearClave($request);
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $clientes = DB::table('clientes')->paginate(100);
         foreach ($clientes as $cliente) {
             $telefono = DB::table('telefonos_clientes')->where('cedula', '=', $cliente->cedula)->get();
             $cliente->telefonos = $telefono;
         }
         $estado = "¡Nuevo cliente registrado!";
-        return Inertia::render('Customer/Customers', compact('auth', 'clientes', 'url', 'estado'));
+        $info = DB::table('info_pagina')->first();      
+        return Inertia::render('Customer/Customers', compact('auth', 'clientes', 'globalVars', 'estado', 'info'));
     }
 
     public function ingresarCrearClave($request)
@@ -81,18 +84,26 @@ class ClientesController extends Controller{
     public function show(string $id)
     {
         // Eliminar en este metodo porque no se conseguido reescribir el method get por delete en el form react....
-        DB::table('clientes')->where('cedula', '=', $id)->delete();
-        DB::table('telefonos_clientes')->where('cedula', '=', $id)->delete();
-        DB::table('crear_clave')->where('cedula', '=', $id)->delete();
+        $validarEliminar = DB::table('lista_compras')->where('cliente', '=', $id)->first();
+        if ($validarEliminar != null) {
+            $estado = "¡No puedes eliminar este cliente porque tiene algunas compras!";
+            $duracionAlert = 2000;
+        }else{
+            DB::table('clientes')->where('cedula', '=', $id)->delete();
+            DB::table('telefonos_clientes')->where('cedula', '=', $id)->delete();
+            DB::table('crear_clave')->where('cedula', '=', $id)->delete();
+            $duracionAlert = 1000;
+            $estado = "¡Cliente eliminado!";
+        }
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $clientes = DB::table('clientes')->paginate(100);
         foreach ($clientes as $cliente) {
             $telefono = DB::table('telefonos_clientes')->where('cedula', '=', $cliente->cedula)->get();
             $cliente->telefonos = $telefono;
         }
-        $estado = "¡Cliente eliminado!";
-        return Inertia::render('Customer/Customers', compact('auth', 'clientes', 'url', 'estado'));
+        $info = DB::table('info_pagina')->first();      
+        return Inertia::render('Customer/Customers', compact('auth', 'clientes', 'globalVars', 'estado', 'info', 'duracionAlert'));
     }
 
     public function edit(string $id)
@@ -104,11 +115,12 @@ class ClientesController extends Controller{
         $cliente->usuario = $usuario;
         $cliente->id = $id;
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $deptos = DB::table('departamentos')->get();
         $municipios = DB::table('municipios')->get();
         $token = csrf_token();
-        return Inertia::render('Customer/NewClient', compact('auth', 'cliente', 'url', 'deptos', 'municipios', 'token'));
+        $info = DB::table('info_pagina')->first();      
+        return Inertia::render('Customer/NewClient', compact('auth', 'cliente', 'globalVars', 'deptos', 'municipios', 'token', 'info'));
     }
 
     public function update(Request $request, string $id){
@@ -138,12 +150,13 @@ class ClientesController extends Controller{
         $cliente->usuario = $usuario;
         $cliente->id = $id;
         $auth = Auth()->user();
-        $url = $this->global->getMyUrl();
+        $globalVars = $this->global->getGlobalVars();
         $deptos = DB::table('departamentos')->get();
         $municipios = DB::table('municipios')->get();
         $token = csrf_token();
         $estado = "¡Cliente actualizado!";
-        return Inertia::render('Customer/NewClient', compact('auth', 'cliente', 'url', 'deptos', 'municipios', 'token', 'estado'));
+        $info = DB::table('info_pagina')->first();      
+        return Inertia::render('Customer/NewClient', compact('auth', 'cliente', 'globalVars', 'deptos', 'municipios', 'token', 'estado', 'info'));
     }
 
     public function ActualizarCrearClave($request){

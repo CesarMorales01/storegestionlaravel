@@ -10,18 +10,25 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Facades\DB;
+use App\Models\Globalvar;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile form.
-     */
+    public $global=null;
+    
+    public function __construct()
+    {
+        $this->global = new Globalvar();
+    }
+
     public function edit(Request $request): Response
     {
-        return Inertia::render('Profile/Edit', [
-            'mustVerifyEmail' => $request->user() instanceof MustVerifyEmail,
-            'status' => session('status'),
-        ]);
+        $info = DB::table('info_pagina')->first();      
+        $globalVars = $this->global->getGlobalVars();
+        $mustVerifyEmail = $request->user() instanceof MustVerifyEmail;
+        $status = session('status');
+        return Inertia::render('Profile/Edit', compact('status', 'mustVerifyEmail', 'info', 'globalVars'));
     }
 
     /**

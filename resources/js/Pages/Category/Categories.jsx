@@ -18,7 +18,7 @@ const Categories = (params) => {
             Swal.fire({
                 title: params.estado,
                 icon: params.estado.includes('elimin') ? 'warning' : 'success',
-                timer: 1000,
+                timer: !params.duracionAlert ? 1000 : params.duracionAlert
             })
         }
     }, [])
@@ -34,7 +34,7 @@ const Categories = (params) => {
       }
 
     return (
-        <AuthenticatedLayout user={params.auth}>
+        <AuthenticatedLayout user={params.auth} info={params.info} urlImagenes={params.globalVars.urlImagenes}>
             <Head title="Categorias" />
             <div className='container table-responsive'>
                 <div align="center" className="row justify-content-center">
@@ -42,7 +42,7 @@ const Categories = (params) => {
                         <div style={{ textAlign: 'left', marginTop: '0.8em' }} className="col-lg-3 col-md-6 col-sm-12 col-12" >
                             <button  id='btnDialogoNewCategory' data-toggle="modal" data-target="#dialogoNuevaCategoria" style={{ display: 'none' }} ></button>
                             <a onClick={()=>abrirDialogo({id: '', nombre: '', imagen: ''})} style={{ color: 'black' }} className='btn bg-green-700 hover:bg-green-400 btn-sm'>Nueva categoria</a>
-                            <DialogoNewCategory token={params.token} url={params.url} urlImagenes={params.urlImagenes} category={cate}></DialogoNewCategory>
+                            <DialogoNewCategory token={params.token} url={params.globalVars.myUrl} urlImagenes={params.globalVars.urlImagenesCategorias} category={cate}></DialogoNewCategory>
                         </div>
                         <div style={{ marginTop: '0.2em', textAlign: 'right' }} className="col-lg-9 col-md-6 col-sm-12 col-12" >
                         </div>
@@ -72,7 +72,7 @@ const Categories = (params) => {
                                     </th>
                                     <td>{item.nombre}</td>
                                     <td>
-                                        <img style={{ width: '6em', heigth: '6em' }} src={params.urlImagenes+item.imagen} />
+                                        <img style={{ width: '6em', heigth: '6em' }} src={params.globalVars.urlImagenesCategorias+item.imagen} />
                                     </td>
                                 </tr>
                             )

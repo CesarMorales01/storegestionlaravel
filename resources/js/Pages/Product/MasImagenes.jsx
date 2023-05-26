@@ -31,7 +31,7 @@ const MasImagenes = (params) => {
     }, [imagenes, id])
 
     function fetchImagenes() {
-        const url = params.url + 'api/product/getimages/' + params.id
+        const url = params.globalVars.myUrl + 'api/product/getimages/' + params.id
         fetch(url)
             .then((response) => {
                 return response.json()
@@ -76,7 +76,7 @@ const MasImagenes = (params) => {
 
     function fetchBorrarImagen() {
         loadingOnImgs()
-        const url = params.url+ 'product/deleteimage/'+imagenEliminar.id+"?nombre="+imagenEliminar.nombre
+        const url = params.globalVars.myUrl+ 'product/deleteimage/'+imagenEliminar.id+"?nombre="+imagenEliminar.nombre
         fetch(url)
             .then((response) => {
                 return response.json()
@@ -100,7 +100,7 @@ const MasImagenes = (params) => {
             const formData = new FormData();
             const fileName = selectedFile.name
             formData.append("image", selectedFile);
-            const url = params.url + 'product/image/' + params.id + "?_token=" + params.token + "&name=" + fileName
+            const url = params.globalVars.myUrl + 'product/image/' + params.id + "?_token=" + params.token + "&name=" + fileName
             try {
                 const response = await axios.post(url, formData, {
                     headers: { "Content-Type": "multipart/form-data" }
@@ -110,7 +110,7 @@ const MasImagenes = (params) => {
                         setFileId(Math.random())
                         setMensajeImgs('Imagen guardada.')
                         reiniciarImagenes()
-                        document.getElementById('ingresarImg').src = params.url + '/Imagenes_config/noPreview.jpg'
+                        document.getElementById('ingresarImg').src = params.globalVars.urlRoot + '/Imagenes_config/noPreview.jpg'
                         loadingOffImgs()
                     } else {
                         setMensajeImgs('Problemas al guardar la imagen!')
@@ -143,7 +143,7 @@ const MasImagenes = (params) => {
                         <span id='spanvalidandoNombreImagenImgs' style={{ display: 'none' }} className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                     </div>
                     <div className='col-lg-6 col-md-6 col-sm-12 col-12'>
-                        <img id="ingresarImg" width="140px" height="150px" src={params.url + '/Imagenes_config/noPreview.jpg'} />
+                        <img id="ingresarImg" width="140px" height="150px" src={params.globalVars.urlRoot + '/Imagenes_config/noPreview.jpg'} />
                     </div>
                     <br />
                     <div style={{ marginTop: '0.4em' }} className="col text-center">
@@ -171,7 +171,7 @@ const MasImagenes = (params) => {
                                         </svg>
                                     </button>
                                     
-                                    <img onLoad={loadingOffImgs} className="img-fluid" src={params.urlImagenes  + item.nombre_imagen} />
+                                    <img onLoad={loadingOffImgs} className="img-fluid" src={params.globalVars.urlImagenes  + item.nombre_imagen} />
                                 </div>
                             )
                         })}

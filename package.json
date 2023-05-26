@@ -19,6 +19,7 @@
         "vite": "^4.0.0"
     },
     "dependencies": {
+        "react-color-palette": "^6.2.0",
         "react-select": "^5.7.2",
         "sweetalert2": "^11.7.3"
     }
