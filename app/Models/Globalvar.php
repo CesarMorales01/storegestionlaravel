@@ -16,7 +16,7 @@ class Globalvar extends Model
     {
         $this->globalVars = new stdClass();
         //$this->globalVars->urlRoot = "https://bellohogar.online/";
-        $this->globalVars->urlRoot = "http://adminboard.test/";
+        $this->globalVars->urlRoot = "https://tucasabonita.site/";
 
         // $this->globalVars->myUrl="https://gestion.bellohogar.online/";
         $this->globalVars->myUrl = "http://adminboard.test/";

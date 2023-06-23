@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Models\Globalvar;
+use Illuminate\Support\Facades\Redirect;
 
 class SettingController extends Controller
 {
@@ -16,10 +17,11 @@ class SettingController extends Controller
         $this->global = new Globalvar();
     }
 
-    public function getLogo(){
+    public function getLogo()
+    {
         $globalVars = $this->global->getGlobalVars();
-        $info=DB::table('info_pagina')->first();
-        $info->globalVars=$globalVars;
+        $info = DB::table('info_pagina')->first();
+        $info->globalVars = $globalVars;
         return response()->json($info, 200, []);
     }
 
@@ -27,14 +29,14 @@ class SettingController extends Controller
     {
         $info = DB::table('info_pagina')->first();
         $tels = DB::table('telefonos_pagina')->get();
-        $telefonos=[];
-        foreach($tels as $telefono){
-            $telefonos[]=$telefono->telefono;
+        $telefonos = [];
+        foreach ($tels as $telefono) {
+            $telefonos[] = $telefono->telefono;
         }
         $auth = Auth()->user();
         $globalVars = $this->global->getGlobalVars();
         $token = csrf_token();
-        $info = DB::table('info_pagina')->first();      
+        $info = DB::table('info_pagina')->first();
         return Inertia::render('Setting/Settings', compact('auth', 'info', 'globalVars', 'token', 'telefonos', 'info'));
     }
 
@@ -45,44 +47,36 @@ class SettingController extends Controller
 
     public function store(Request $request)
     {
-        $this->ingresarLogo($request);
-        $this->ingresarImagen($request);
         DB::table('info_pagina')->updateOrInsert(
             ['id' => $request->id],
             [
                 'nombre' => $request->nombre,
-                'descripcion_pagina'=>$request->descripcion_pagina,
-                'direccion_pagina'=>$request->direccion_pagina,
-                'color_pagina'=>$request->color_pagina,
-                'correo'=>$request->correo,
-                'comision'=>$request->comision,
-                'linkfb'=>$request->fb,
-                'linkinsta'=>$request->insta
+                'descripcion_pagina' => $request->descripcion_pagina,
+                'direccion_pagina' => $request->direccion_pagina,
+                'color_pagina' => $request->color_pagina,
+                'correo' => $request->correo,
+                'comision_pasarela_pagos' => $request->comision,
+                'linkfb' => $request->fb,
+                'linkinsta' => $request->insta
             ]
         );
-        $this->ingresar_telefonos($request);
         $info = DB::table('info_pagina')->first();
-        $tels = DB::table('telefonos_pagina')->get();
-        $telefonos=[];
-        foreach($tels as $telefono){
-            $telefonos[]=$telefono->telefono;
-        }
-        $auth = Auth()->user();
-        $globalVars = $this->global->getGlobalVars();
-        $token = csrf_token();
-        return Inertia::render('Setting/Settings', compact('auth', 'info', 'globalVars', 'token', 'telefonos'));
+        $this->ingresarLogo($request, $info->id);
+        $this->ingresarImagen($request, $info->id);
+        $this->ingresar_telefonos($request);
+        return Redirect::route('setting.index');
     }
 
-    public function ingresarImagen($request){
+    public function ingresarImagen($request, $id)
+    {
         if ($request->hasFile('imagen')) {
-            if($request->imagenAnterior!=''){
+            if ($request->imagenAnterior != '') {
                 unlink($this->global->getGlobalVars()->dirImagenes . $request->imagenAnterior);
             }
             $file = $request->file('imagen');
             $fileName = $file->getClientOriginalName();
             $upload = $request->file('imagen')->move($this->global->getGlobalVars()->dirImagenes, $fileName);
-            DB::table('info_pagina')->updateOrInsert(
-                ['id' => $request->id],
+            DB::table('info_pagina')->where('id', '=', $id)->update(
                 [
                     'imagen' => $fileName
                 ]
@@ -90,16 +84,16 @@ class SettingController extends Controller
         }
     }
 
-    public function ingresarLogo($request){
+    public function ingresarLogo($request, $id)
+    {
         if ($request->hasFile('logo')) {
-            if($request->logoAnterior!=''){
+            if ($request->logoAnterior != '') {
                 unlink($this->global->getGlobalVars()->dirImagenes . $request->logoAnterior);
             }
             $file = $request->file('logo');
             $fileName = $file->getClientOriginalName();
             $upload = $request->file('logo')->move($this->global->getGlobalVars()->dirImagenes, $fileName);
-            DB::table('info_pagina')->updateOrInsert(
-                ['id' => $request->id],
+            DB::table('info_pagina')->where('id', '=', $id)->update(
                 [
                     'logo' => $fileName
                 ]
@@ -107,7 +101,8 @@ class SettingController extends Controller
         }
     }
 
-    public function ingresar_telefonos($request){
+    public function ingresar_telefonos($request)
+    {
         DB::table('telefonos_pagina')->delete();
         for ($i = 0; $i < count($request->telefonos); $i++) {
             $token = strtok($request->telefonos[$i], ",");

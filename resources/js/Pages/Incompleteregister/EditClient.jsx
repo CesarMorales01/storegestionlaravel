@@ -46,9 +46,9 @@ const NewClient = (params) => {
     function cargarDatos() {
         setNewDatosPersonales((valores) => ({
             ...valores,
-            usuario: params.cliente.usuario,
-            correo: params.cliente.correo,
-            clave: params.cliente.clave
+            usuario: params.cliente.name,
+            correo: params.cliente.email,
+            clave: params.cliente.password
         }))
     }
 

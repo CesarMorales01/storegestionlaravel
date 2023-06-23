@@ -10,6 +10,10 @@ const Index = (params) => {
     const [filterProducts, setFilterProducts] = useState(params.productos.data)
     const [noproductos, setNoProductos] = useState(false)
 
+    if(params.info==null){
+       window.location.href=params.globalVars.myUrl+"setting"
+    }
+
     useEffect(() => {
         if (filterProducts.length == 0) {
             setNoProductos(true)

@@ -17,6 +17,7 @@ const NewProduct = (params) => {
         categoria: '',
         nombre: '',
         descripcion: '',
+        cantidad: 0,
         valor: '',
         imagen: ''
     })
@@ -33,6 +34,8 @@ const NewProduct = (params) => {
                     categoria: '',
                     nombre: '',
                     descripcion: '',
+                    cantidad: 0,
+                    costo: 0,
                     valor: '',
                     imagen: 'noPreview.jpg'
                 })
@@ -45,6 +48,8 @@ const NewProduct = (params) => {
                     categoria: params.producto[0].categoria,
                     nombre: params.producto[0].nombre,
                     descripcion: params.producto[0].descripcion,
+                    cantidad: params.producto[0].cantidad,
+                    costo: params.producto[0].costo,
                     valor: params.producto[0].valor,
                     imagen: params.producto[0].nombre_imagen
                 })
@@ -58,6 +63,13 @@ const NewProduct = (params) => {
                 title: params.estado,
                 icon: 'success',
                 timer: 1000,
+            })
+        }
+        if (params.categorias.length == 0) {
+            Swal.fire({
+                title: "Ingresa primera una categoria!",
+                icon: 'warning',
+                timer: 2000,
             })
         }
     }, [])
@@ -105,17 +117,6 @@ const NewProduct = (params) => {
         document.getElementById('btnIngresar').style.display = 'none'
     }
 
-    function validarCampos() {
-        let validado = false
-        if (producto.nombre != '' && producto.valor != '') {
-            validado = true
-            setMessage('')
-        } else {
-            setMessage('Faltan datos importantes!')
-        }
-        return validado
-    }
-
     function validarContenidoFile() {
         let respuesta = false
         if (document.getElementById("fileImagen").files.length > 0) {
@@ -152,7 +153,7 @@ const NewProduct = (params) => {
 
     function validarCampos() {
         let validado = false
-        if (producto.nombre != '' && producto.valor != '') {
+        if (producto.nombre != '' && producto.valor != '' && producto.categoria != '') {
             validado = true
             setMessage('')
         } else {
@@ -175,6 +176,13 @@ const NewProduct = (params) => {
         document.getElementById('spanvalidandoNombreImagen').style.display = 'none'
     }
 
+    function setCantidad(e) {
+        setProducto((valores) => ({
+            ...valores,
+            cantidad: e.target.value
+        }))
+    }
+
     function setPrecio(e) {
         let uti = parseInt(e.target.value) * 0.2;
         let precio = uti + parseInt(e.target.value)
@@ -191,7 +199,7 @@ const NewProduct = (params) => {
         document.getElementById('eliminar').click()
     }
 
-    function abrirDialogoEliminar(){
+    function abrirDialogoEliminar() {
         Swal.fire({
             title: '¿Eliminar este producto?',
             icon: 'warning',
@@ -199,11 +207,11 @@ const NewProduct = (params) => {
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
             confirmButtonText: 'Si, eliminar!'
-          }).then((result) => {
+        }).then((result) => {
             if (result.isConfirmed) {
-              enviarBorrar()
+                enviarBorrar()
             }
-          })
+        })
     }
 
     function updateProduct() {
@@ -212,7 +220,7 @@ const NewProduct = (params) => {
         form.action = route('product.actualizar', producto.id)
         form.submit()
     }
-
+    // PONER FORMA DE IDENTIFICAR SI UN PRODUCTO TIENE 0 INVENTARIO O SI TIENE CANTIDAD NULL
     return (
         <AuthenticatedLayout
             user={params.auth.user} info={params.info} url={params.globalVars.urlRoot} urlImagenes={params.globalVars.urlImagenes} >
@@ -239,18 +247,30 @@ const NewProduct = (params) => {
                                 })}
                             </select>
                             <br />
+                            Nombre
+                            <br />
                             <textarea className='form-control' name='nombre' required onChange={cambioNombre} placeholder="Nombre" value={producto.nombre == '' ? '' : producto.nombre} />
+                            <br />
+                            Descripción
                             <br />
                             <textarea className='form-control' name='descripcion' rows="2" onChange={cambioDescripcion} placeholder="Descripcion" value={producto.descripcion == '' ? '' : producto.descripcion}></textarea>
                             <br />
-                            <input type="number" onChange={setPrecio} placeholder="Costo producto" />
+                            Cantidad
+                            <br />
+                            <input type="number" name='cantidad' onChange={setCantidad} placeholder="Cantidad" defaultValue={producto.cantidad == '' ? '' : producto.cantidad} />
                             <br /><br />
-                            <input className='form-control' name='valor' onChange={cambioPrecio} type='number' required placeholder="valor" defaultValue={producto.valor == '' ? '' : producto.valor} />
+                             Costo
+                            <br />
+                            <input type="number" name='costo' onChange={setPrecio} placeholder="Costo producto" defaultValue={producto.costo == '' ? '' : producto.costo} />
+                            <br /><br />
+                            Precio de venta:
+                            <br />
+                            <input className='form-control' name='valor' onChange={cambioPrecio} type='number' required placeholder="valor" value={producto.valor == '' ? '' : producto.valor} />
                         </div>
                         <div className="col-lg-6 col-md-6 col-sm-12 col-12" >
                             <input name='imagen' data-toggle="tooltip" id='fileImagen' title="Ingresa imagenes con fondo blanco, aprox 500x500 mp." type="file" disabled={producto.id == '' ? false : true} onChange={mostrarImagen} />
                             <br /><br />
-                            <img onLoad={spinOff} className='border' id="img" width="140px" height="150px" src={params.producto.imagen == '' ? params.globalVars.urlRoot + "/Imagenes_config/" + producto.imagen : params.globalVars.urlImagenes +"/"+ producto.imagen} />
+                            <img onLoad={spinOff} className='border' id="img" width="140px" height="150px" src={params.producto.imagen == '' ? params.globalVars.urlRoot + "/Imagenes_config/" + producto.imagen : params.globalVars.urlImagenes + "/" + producto.imagen} />
                             <span id='spanvalidandoNombreImagen' style={{ display: '' }} className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <br />
                             {producto.id == '' ? '' : producto.imagen}
@@ -280,7 +300,7 @@ const NewProduct = (params) => {
                                 </div>
                             </div>
                             <br /><br />
-                            <SecondaryButton style={{ cursor: 'pointer' }} disabled={producto.id == '' ? true : false} type="button">
+                            <SecondaryButton style={{ cursor: 'pointer', display: producto.id == '' ? 'none' : '' }} type="button">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" className="bi bi-images" viewBox="0 0 16 16">
                                     <path d="M4.502 9a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
                                     <path d="M14.002 13a2 2 0 0 1-2 2h-10a2 2 0 0 1-2-2V5A2 2 0 0 1 2 3a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-1.998 2zM14 2H4a1 1 0 0 0-1 1h9.002a2 2 0 0 1 2 2v7A1 1 0 0 0 15 11V3a1 1 0 0 0-1-1zM2.002 4a1 1 0 0 0-1 1v8l2.646-2.354a.5.5 0 0 1 .63-.062l2.66 1.773 3.71-3.71a.5.5 0 0 1 .577-.094l1.777 1.947V5a1 1 0 0 0-1-1h-10z" />
@@ -288,7 +308,7 @@ const NewProduct = (params) => {
                                 <a href='#imagenes' style={{ marginLeft: '0.2em' }}>Subir más imagenes</a>
                             </SecondaryButton>
                             <br /><br />
-                            <a href={route('question.edit', producto.id)} disabled={producto.id == '' ? true : false} className="btn btn-primary" >Preguntas sobre este producto</a>
+                            <a style={{ display: producto.id == '' ? 'none' : '' }} href={route('question.edit', producto.id)} className="btn btn-primary" >Preguntas sobre este producto</a>
                             <br /><br />
                         </div>
                     </div>
@@ -296,8 +316,8 @@ const NewProduct = (params) => {
                 {/*show cause @method dont work...*/}
                 <a id='eliminar' href={route('product.show', producto.id)}></a>
             </div>
-            <div style={{ display: producto.id=='' ? 'none' : 'inline' }}>
-            <MasImagenes token={params.token} id={producto.id} nombre={producto.nombre} globalVars={params.globalVars}/>
+            <div style={{ display: producto.id == '' ? 'none' : 'inline' }}>
+                <MasImagenes token={params.token} id={producto.id} nombre={producto.nombre} globalVars={params.globalVars} />
             </div>
         </AuthenticatedLayout>
     )

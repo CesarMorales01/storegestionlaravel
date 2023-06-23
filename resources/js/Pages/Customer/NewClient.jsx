@@ -42,10 +42,11 @@ const NewClient = (params) => {
     useEffect(() => {
         if (params.cliente.id != '') {
             setCodigoEditar(params.cliente.id)
+            document.getElementById('inputCorreo').readOnly=true
             cargarDatos()
         }
     }, [])
-
+    
     function cargarDatos() {
         setNewDatosPersonales((valores) => ({
             ...valores,
@@ -57,9 +58,9 @@ const NewClient = (params) => {
             ciudad: params.cliente.ciudad,
             departamento: params.cliente.departamento,
             otros: params.cliente.otros,
-            usuario: params.cliente.usuario[0].usuario,
-            correo: params.cliente.usuario[0].correo,
-            clave: params.cliente.usuario[0].clave
+            usuario: params.cliente.usuario[0].name,
+            correo: params.cliente.usuario[0].email,
+            clave: params.cliente.usuario[0].password
         }))
         setNombreCiudad()
         setTelefonos()
@@ -260,7 +261,7 @@ const NewClient = (params) => {
 
     function validarDatosVaciosDir() {
         let vacios = true
-        if (newDatosPersonales.usuario == '' || newDatosPersonales.email == '') {
+        if (newDatosPersonales.usuario == '' || newDatosPersonales.correo == '') {
             alertDatosFaltantes('Ingresa usuario, email y/o contraseña')
             vacios = true
         } else {
@@ -402,7 +403,7 @@ const NewClient = (params) => {
                                     <input name='usuario' type="text" onChange={cambioUsuario} className="form-control" id="inputUsuario" value={newDatosPersonales.usuario == '' ? '' : newDatosPersonales.usuario} />
                                     <br />
                                     <p style={{ textAlign: 'justify', color: 'black' }}>E-mail</p>
-                                    <input name='correo' type="text" onChange={cambioCorreo} className="form-control" id="inputCorreo" defaultValue={newDatosPersonales.correo == '' ? '' : newDatosPersonales.correo} />
+                                    <input  name='correo' type="text" onChange={cambioCorreo} className="form-control" id="inputCorreo" defaultValue={newDatosPersonales.correo == '' ? '' : newDatosPersonales.correo} />
                                     <br />
                                 </div>
                                 <strong style={{ fontSize: '1em' }} >Contraseña</strong>

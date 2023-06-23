@@ -34,8 +34,9 @@ const Clientes = (params) => {
     function cambioNombre(e) {
         const buscar = e.target.value.toLowerCase()
         let newArray = []
+        
         for (let i = 0; i < clientes.length; i++) {
-            if (clientes[i].nombre.toLowerCase().includes(buscar) || clientes[i].direccion.toLowerCase().includes(buscar) || clientes[i].usuario[0].correo.toLowerCase().includes(buscar)) {
+            if (clientes[i].nombre.toLowerCase().includes(buscar) || clientes[i].direccion.toLowerCase().includes(buscar) || clientes[i].usuario[0].email.toLowerCase().includes(buscar)) {
                 newArray.push(clientes[i])
             }
         }

@@ -9,9 +9,21 @@ import PrimaryButton from '@/Components/PrimaryButton';
 
 const Settings = (params) => {
    
-    const [datosPagina, setDatosPagina] = useState(params.info)
+    const [datosPagina, setDatosPagina] = useState({
+        'id':'',
+        'logo': '',
+        'color_pagina': 'gray',
+        'imagen': '',
+        'comision': 0
+    })
     const [campoTelefono, setCampoTelefono] = useState('')
     const [telefonos, setTelefonos] = useState(params.telefonos)
+
+    useEffect(() => {
+        if (params.info != null) {
+            setDatosPagina(params.info)
+        }
+    }, [])
 
     function borrarTelefono(tel) {
         const temp = telefonos.filter((art) => art !== tel);
@@ -84,11 +96,6 @@ const Settings = (params) => {
         document.getElementById('btnIngresar').style.display = 'none'
     }
 
-    function loadingOff() {
-        document.getElementById('btnLoading').style.display = 'none'
-        document.getElementById('btnIngresar').style.display = 'inline'
-    }
-
     function fetchIngresarDatos(e) {
         e.preventDefault()
         if (datosPagina.nombre === '' || datosPagina.nombre === undefined) {
@@ -97,70 +104,6 @@ const Settings = (params) => {
             loadingOn()
             document.getElementById('formCrear').submit()
         }
-        console.log(datosPagina)
-    }
-
-    function fetchIngresarTelefonosPagina() {
-        const url = glob.URL_SERV + 'getInfoPagina.php?modo=ingresarTelefonosPagina'
-        fetch(url, {
-            method: 'POST',
-            body: JSON.stringify(telefonos),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then((response) => {
-                return response.json()
-            }).then((json) => {
-            })
-    }
-
-    function fetchIngresarImagen(id) {
-        const url = glob.URL_SERV + 'getInfoPagina.php?modo=ingresarImagen&id=' + id + "&imagenAnterior=" + datosPagina.imagen
-        let fd = new FormData();
-        fd.append("foto", document.getElementById("fileImagen").files[0])
-        fetch(url, {
-            method: 'POST',
-            body: fd
-        }).then((response) => {
-            return response.json()
-        })
-            .then((json) => {
-                loadingOff()
-                if (json === 'Foto en directorio') {
-                    setDatosPagina((valores) => ({
-                        ...valores,
-                        imagen: document.getElementById("fileImagen").files[0].name
-                    }))
-                    document.getElementById('reiniciarDatosPagina').click()
-                } else {
-                }
-            })
-    }
-
-    function fetchIngresarLogo(id) {
-        const url = glob.URL_SERV + 'getInfoPagina.php?modo=ingresarLogo&id=' + id + "&logoAnterior=" + datosPagina.logo
-        let fd = new FormData();
-        fd.append("foto", document.getElementById("fileLogo").files[0])
-        fetch(url, {
-            method: 'POST',
-            body: fd
-        }).then((response) => {
-            return response.json()
-        })
-            .then((json) => {
-                loadingOff()
-                if (json == 'Foto en directorio') {
-
-                    setDatosPagina((valores) => ({
-                        ...valores,
-                        logo: document.getElementById("fileLogo").files[0].name
-                    }))
-                    document.getElementById('reiniciarDatosPagina').click()
-                } else {
-
-                }
-            })
     }
 
     function mostrarLogo(event) {
@@ -209,7 +152,7 @@ const Settings = (params) => {
     }
 
     return (
-        <AuthenticatedLayout user={params.auth} info={params.info} url={params.globalVars.myUrl} urlImagenes={params.globalVars.urlImagenes}>
+        <AuthenticatedLayout user={params.auth} info={datosPagina} url={params.globalVars.myUrl} urlImagenes={params.globalVars.urlImagenes}>
             <Head title="Productos" />
             <div className="container justify-content-justify">
                 <h1 style={{ marginTop: '0.5em', fontSize: '1.5em' }} id="titulo" className="text-center">Configuración aplicacion web</h1>
@@ -217,7 +160,7 @@ const Settings = (params) => {
                     <div className="row justify-content-around">
                         <div className="col-lg-6 col-md-6 col-sm-12 col-12">
                             <input type="hidden" name='_token' value={params.token} />
-                            <input type="hidden" name='id' value={datosPagina.id} />
+                            <input type="hidden" name='id' value={datosPagina.id=='' ? '' : datosPagina.id} />
                             Nombre de la aplicación
                             <input className='form-control' name='nombre' type="text" onChange={cambioNombre} placeholder="Este nombre se mostrará junto al logo" value={datosPagina.nombre} />
                             <br />
@@ -277,13 +220,13 @@ const Settings = (params) => {
                             <input name='logo' data-toggle="tooltip" id='fileLogo' title="" onChange={mostrarLogo} type="file" />
                             <input name='logoAnterior' type='hidden' value={datosPagina.logo}></input>
                             <br />
-                            <img onLoad={spinOff} className='border' id="logo" width="80px" height="80px" src={params.info.logo == '' ? params.globalVars.urlRoot + '/Imagenes_config/noPreview.jpg' : params.globalVars.urlImagenes  + params.info.logo} />
+                            <img onLoad={spinOff} className='border' id="logo" width="80px" height="80px" src={datosPagina.logo == '' ? params.globalVars.urlRoot + '/Imagenes_config/noPreview.jpg' : params.globalVars.urlImagenes  + datosPagina.logo} />
                             <br /><br />
                             Imagen publicitaria (Se muestra en la sección contactos)
                             <input name='imagenAnterior' type='hidden' value={datosPagina.imagen}></input>
                             <input name='imagen' data-toggle="tooltip" id='fileImagen' title="" onChange={mostrarImagen} type="file" />
                             <br />
-                            <img className='border' id="imagen" width="140px" height="150px"  src={params.info.imagen == '' ? params.globalVars.urlRoot + '/Imagenes_config/noPreview.jpg' : params.globalVars.urlImagenes  + params.info.imagen} />
+                            <img className='border' id="imagen" width="140px" height="150px"  src={datosPagina.imagen == '' ? params.globalVars.urlRoot + '/Imagenes_config/noPreview.jpg' : params.globalVars.urlImagenes  + datosPagina.imagen} />
                             <span id='spanvalidandoNombreImagen' style={{ display: 'none' }} className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                             <br />
                             {datosPagina.imagen == '' ? '' : datosPagina.imagen}

@@ -50,7 +50,6 @@ class ShoppingController extends Controller
     {
         $datos = json_decode(file_get_contents('php://input'));
         $compra_n = strval($this->get_compra_n($datos->cliente));
-        
         DB::table('lista_compras')->insert([
             'cliente' => $datos->cliente,
             'compra_n' => $compra_n,
@@ -62,7 +61,6 @@ class ShoppingController extends Controller
             'estado' => 'Recibida',
             'vendedor' => Auth()->user()->name
         ]);
-        
         $nums = count($datos->listaProductos);
         for ($i = 0; $i < $nums; $i++) {
             DB::table('lista_productos_comprados')->insert([
@@ -73,9 +71,20 @@ class ShoppingController extends Controller
                 'cantidad' => $datos->listaProductos[$i]->cantidad,
                 'precio' => $datos->listaProductos[$i]->precio
             ]);
-           
+           $this->restarInventario($datos->listaProductos[$i]);
         }
         return response()->json('ok', 200, []);
+    }
+
+    public function restarInventario($item)
+    { 
+        $actualCant = DB::table('productos')->where('id', '=', $item->codigo)->first();
+        if($actualCant->cantidad!=null && $actualCant->cantidad!=0){
+            $newCant = $actualCant->cantidad - $item->cantidad;
+            DB::table('productos')->where('id', '=', $item->codigo)->update([
+                'cantidad' => $newCant
+            ]);
+        } 
     }
 
     public function store(Request $request){

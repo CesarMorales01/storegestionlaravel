@@ -55,6 +55,8 @@ class ProductController extends Controller
                 'categoria' => $request->categoria,
                 'nombre' => $request->nombre,
                 'descripcion' => $request->descripcion,
+                'cantidad' => $request->cantidad,
+                'costo' => $request->costo,
                 'valor' => $request->valor
             ]);
             $id = DB::getPdo()->lastInsertId();
@@ -137,6 +139,8 @@ class ProductController extends Controller
             'categoria' => $request->categoria,
             'nombre' => $request->nombre,
             'descripcion' => $request->descripcion,
+            'cantidad' => $request->cantidad,
+            'costo' => $request->costo,
             'valor' => $request->valor,
         ]);
         $producto = DB::table('productos')->join($this->global->getGlobalVars()->tablaImagenes, function (JoinClause $join) use ($id) {

@@ -50,6 +50,7 @@ const NuevaCompra = (params) => {
         }
         //costo envio
         totales.costoEnvio = getCostoEnvio(totales.subtotal)
+        
         totales.costoMedioPago = totalizarModoDepago(totales.subtotal)
         setDatosCompra((valores) => ({
             ...valores,
@@ -63,7 +64,7 @@ const NuevaCompra = (params) => {
         setCheckedRadioPagos()
         let totalModoDepago=0;
         if (datosCompra.medio_de_pago !== 'Contraentrega') {
-            const porcentaje= params.datosPagina.comision/100
+            const porcentaje= params.datosPagina.comision_pasarela_pagos/100
             totalModoDepago= parseFloat(porcentaje) * parseFloat(subtotal)
         }            
         return totalModoDepago 
@@ -92,7 +93,7 @@ const NuevaCompra = (params) => {
     function getCostoEnvio(sub) {
         let envio = 0;
         if (datosCompra.cliente != '') {
-            envio = params.datosPagina.costo_envio
+            envio = params.datosPagina.valor_envio
         } else {
             // alert('Seleccionar un cliente para calcular el envio!')
         }
@@ -163,6 +164,7 @@ const NuevaCompra = (params) => {
         }).then((response) => {
                 return response.json()
             }).then((json) => {
+
                 if(json=='ok'){
                     document.getElementById('goShoppingIndex').click()
                 }
@@ -259,8 +261,32 @@ const NuevaCompra = (params) => {
         }
     }
 
+    function validarInventario(id){
+        let cantidadEnInventario=0
+        let boolean=false
+        params.productos.forEach(element => {
+            if(element.id==id){
+                cantidadEnInventario=element
+            }
+        });
+        let cantCarrito=0
+        datosCompra.listaProductos.forEach(element=>{
+            if(element.codigo==id){
+                cantCarrito=element
+            }
+        })
+        if(cantidadEnInventario.cantidad<cantCarrito.cantidad+1 && cantidadEnInventario.cantidad!=null){
+            alert('Hay solo '+cantidadEnInventario.cantidad+" unidades en inventario!")
+            boolean=true
+        }
+        return boolean
+    }
+
     function masCant(id) {
         if (validarcantidad(id) < 6) {
+            if(validarInventario(id)){
+                return
+            }
             const temp = datosCompra.listaProductos
             reiniciarProductos()
             setTimeout(() => {
@@ -274,6 +300,8 @@ const NuevaCompra = (params) => {
                 }))
                 calcularTotales(updatedArray)
             }, 100);
+        }else{
+            alert('La cantidad máxima de productos es 6!')
         }
     }
 

@@ -15,10 +15,10 @@ class Globalvar extends Model
     function __construct()
     {
         $this->globalVars = new stdClass();
-        $this->globalVars->urlRoot = "https://tucasabonita.site/";
+        $this->globalVars->urlRoot = "https://bellohogar.online/";
         //$this->globalVars->urlRoot = "http://adminboard.test/";
 
-         $this->globalVars->myUrl="https://gestion.tucasabonita.site/";
+         $this->globalVars->myUrl="https://gestion.bellohogar.online/";
         //$this->globalVars->myUrl = "http://adminboard.test/";
 
         /*
@@ -26,24 +26,24 @@ class Globalvar extends Model
             del prodyecto, en cambio en laravel solo se puede acceder a los recursos de la carpeta public)
         */
         //$this->globalVars->dirImagenes = "C:\/laragon\www\/adminboard\/public\images\/Imagenes_productos\/";
-          $this->globalVars->dirImagenes = "/home/u629086351/domains/tucasabonita.site/public_html/Imagenes_productos/";
+          $this->globalVars->dirImagenes = "/home/u629086351/domains/bellohogar.online/public_html/Imagenes_productos/";
 
         /* Se debe crear una url para las imagenes porque <img /> lee url no directorios.*/
         //$this->globalVars->urlImagenes = "http://adminboard.test/images/Imagenes_productos/";
-         $this->globalVars->urlImagenes="https://tucasabonita.site/Imagenes_productos/";
+         $this->globalVars->urlImagenes="https://bellohogar.online/Imagenes_productos/";
 
         /* El campo imagenes promociones ya esta configurado con el nombre de las imagenes tipo /Imagenes_productos/imagen.png*/
         //$this->globalVars->urlImagenesPromociones = "http://adminboard.test/images/";
-         $this->globalVars->urlImagenesPromociones= "https://tucasabonita.site/";
+         $this->globalVars->urlImagenesPromociones= "https://bellohogar.online/";
 
         //$this->globalVars->dirImagenesCategorias = "C:/laragon\www/adminboard/public/images/ImagenesCategorias/";
-         $this->globalVars->dirImagenesCategorias = "/home/u629086351/domains/tucasabonita.site/public_html/ImagenesCategorias/";
+         $this->globalVars->dirImagenesCategorias = "/home/u629086351/domains/bellohogar.online/public_html/ImagenesCategorias/";
 
        // $this->globalVars->urlImagenesCategorias = "http://adminboard.test/images/";
-         $this->globalVars->urlImagenesCategorias = "https://tucasabonita.site/";
+         $this->globalVars->urlImagenesCategorias = "https://bellohogar.online/";
 
         /*laravel no permite tablas con nombre en mayuscula y el proyecto ya esta con esta tabla con mayuscula*/
-        $this->globalVars->tablaImagenes = "Imagenes_productos";
+        $this->globalVars->tablaImagenes = "imagenes_productos";
     }
 
 

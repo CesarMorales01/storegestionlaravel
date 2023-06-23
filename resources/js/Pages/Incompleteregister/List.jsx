@@ -28,7 +28,7 @@ const List = (params) => {
         const buscar = e.target.value.toLowerCase()
         let newArray = []
         for (let i = 0; i < clientes.length; i++) {
-            if (clientes[i].usuario.toLowerCase().includes(buscar) || clientes[i].correo.toLowerCase().includes(buscar)) {
+            if (clientes[i].name.toLowerCase().includes(buscar) || clientes[i].email.toLowerCase().includes(buscar)) {
                 newArray.push(clientes[i])
             }
         }
@@ -44,7 +44,7 @@ const List = (params) => {
     function buscarClientes(e) {
         cambioNombre(e)
         if (clientes.length == 0) {
-            const url = params.url + 'api/registerincomplete/allclients'
+            const url = params.globalVars.myUrl + 'api/registerincomplete/allclients'
             fetch(url)
                 .then((response) => {
                     return response.json()

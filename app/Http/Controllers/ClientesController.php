@@ -7,7 +7,7 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Models\Globalvar;
 use App\Traits\MetodosGenerales;
-
+use Illuminate\Support\Facades\Hash;
 
 class ClientesController extends Controller{
     public $global = null;
@@ -72,12 +72,12 @@ class ClientesController extends Controller{
 
     public function ingresarCrearClave($request)
     {
-        DB::table('crear_clave')->insert([
+        $contra= Hash::make($request->clave);
+        DB::table('keys')->insert([
             'cedula' => $request->cedula,
-            'usuario' => $request->usuario,
-            'clave' => $request->clave,
-            'correo' => $request->correo,
-            'fecha_ingreso' => $request->fecha
+            'name' => $request->usuario,
+            'password' => $contra,
+            'email' => $request->correo
         ]);
     }
 
@@ -91,7 +91,7 @@ class ClientesController extends Controller{
         }else{
             DB::table('clientes')->where('cedula', '=', $id)->delete();
             DB::table('telefonos_clientes')->where('cedula', '=', $id)->delete();
-            DB::table('crear_clave')->where('cedula', '=', $id)->delete();
+            DB::table('keys')->where('cedula', '=', $id)->delete();
             $duracionAlert = 1000;
             $estado = "¡Cliente eliminado!";
         }
@@ -110,7 +110,7 @@ class ClientesController extends Controller{
     {
         $cliente = DB::table('clientes')->where('cedula', '=', $id)->first();
         $telefonos = DB::table('telefonos_clientes')->where('cedula', '=', $id)->get();
-        $usuario = DB::table('crear_clave')->where('cedula', '=', $id)->get();
+        $usuario = DB::table('keys')->where('cedula', '=', $id)->get();
         $cliente->telefonos = $telefonos;
         $cliente->usuario = $usuario;
         $cliente->id = $id;
@@ -145,7 +145,7 @@ class ClientesController extends Controller{
         $this->ActualizarCrearClave($request);
         $cliente = DB::table('clientes')->where('cedula', '=', $id)->first();
         $telefonos = DB::table('telefonos_clientes')->where('cedula', '=', $id)->get();
-        $usuario = DB::table('crear_clave')->where('cedula', '=', $id)->get();
+        $usuario = DB::table('keys')->where('cedula', '=', $id)->get();
         $cliente->telefonos = $telefonos;
         $cliente->usuario = $usuario;
         $cliente->id = $id;
@@ -160,10 +160,16 @@ class ClientesController extends Controller{
     }
 
     public function ActualizarCrearClave($request){
-        DB::table('crear_clave')->where('cedula', $request->cedula)->update([
-            'usuario' => $request->usuario,
-            'clave' => $request->clave,
-            'correo' => $request->correo
+        $contra='';
+        if( strlen($request->clave) == 60 ){
+            $contra=$request->clave;
+        }else{
+            $contra= Hash::make($request->clave);
+        }
+        DB::table('keys')->where('cedula', $request->cedula)->update([
+            'name' => $request->usuario,
+            'password' => $contra,
+            'email' => $request->correo
         ]);
     }
 
@@ -172,7 +178,7 @@ class ClientesController extends Controller{
         $cliente = null;
         $usuario = null;
         $client = DB::table('clientes')->where('cedula', '=', $ced)->first();
-        $user = DB::table('crear_clave')->where('cedula', '=', $ced)->first();
+        $user = DB::table('keys')->where('cedula', '=', $ced)->first();
         if ($client != null) {
             $cliente = $client;
         }

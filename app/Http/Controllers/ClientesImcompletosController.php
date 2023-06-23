@@ -7,26 +7,29 @@ use Inertia\Inertia;
 use Illuminate\Support\Facades\DB;
 use App\Models\Globalvar;
 use App\Traits\MetodosGenerales;
+use Illuminate\Support\Facades\Hash;
 
 class ClientesImcompletosController extends Controller
 {
     use MetodosGenerales;
     public $global = null;
 
-    public function __construct(){
+    public function __construct()
+    {
         $this->global = new Globalvar();
     }
-    
+
     public function index()
     {
         $auth = Auth()->user();
         $globalVars = $this->global->getGlobalVars();
-        $clientes = DB::table('crear_clave')->where('cedula','=', null)->orWhere('cedula', '=', '')->paginate(100);
-        $info = DB::table('info_pagina')->first();      
+        $clientes = DB::table('keys')->where('cedula', '=', null)->orWhere('cedula', '=', '')->paginate(100);
+        $info = DB::table('info_pagina')->first();
         return Inertia::render('Incompleteregister/List', compact('auth', 'clientes', 'globalVars', 'info'));
     }
 
-    public function create(){        
+    public function create()
+    {
     }
 
 
@@ -57,28 +60,34 @@ class ClientesImcompletosController extends Controller
         return Inertia::render('Customer/Customers', compact('auth', 'clientes', 'globalVars', 'estado', 'info'));
     }
 
-    public function ActualizarCrearClave($request){
-        DB::table('crear_clave')->where('correo', '=', $request->correo)->update([
-            'cedula'=> $request->cedula,
-            'usuario' => $request->usuario,
-            'clave' => $request->clave
+    public function ActualizarCrearClave($request)
+    {
+        $contra = '';
+        if (strlen($request->clave) == 60) {
+            $contra = $request->clave;
+        } else {
+            $contra = Hash::make($request->clave);
+        }
+        DB::table('keys')->where('email', '=', $request->correo)->update([
+            'cedula' => $request->cedula,
+            'name' => $request->usuario,
+            'password' => $contra
         ]);
     }
 
     public function show(string $id)
     {
-        
     }
 
     public function edit(string $id)
     {
-        $cliente = DB::table('crear_clave')->where('correo', '=', $id)->first();
+        $cliente = DB::table('keys')->where('email', '=', $id)->first();
         $auth = Auth()->user();
         $globalVars = $this->global->getGlobalVars();
         $deptos = DB::table('departamentos')->get();
         $municipios = DB::table('municipios')->get();
         $token = csrf_token();
-        $info = DB::table('info_pagina')->first();      
+        $info = DB::table('info_pagina')->first();
         return Inertia::render('Incompleteregister/EditClient', compact('auth', 'cliente', 'globalVars', 'deptos', 'municipios', 'token', 'info'));
     }
 
@@ -97,7 +106,13 @@ class ClientesImcompletosController extends Controller
 
     public function allclients()
     {
-        $clientes = DB::table('crear_clave')->get();
-       return response()->json($clientes, 200, []);
+        $clientes = DB::table('keys')->get();
+        $filter=[];
+        foreach($clientes as $item){
+            if($item->cedula==''){
+                $filter[]=$item;
+            }
+        }
+        return response()->json($filter, 200, []);
     }
 }

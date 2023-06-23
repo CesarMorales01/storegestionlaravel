@@ -27,12 +27,13 @@ export const TablaProductos = (params) => {
                         <th scope="col">Categoria</th>
                         <th scope="col">Nombre</th>
                         <th scope="col">Descripcion</th>
+                        <th scope="col">Cant</th>
                         <th scope="col">Precio</th>
                     </tr>
                 </thead>
                 <tbody>
                     {params.noProductos ?
-                        <tr style={{ marginTop: '1.5em' }} className='container'><td colSpan='5'>No se han encontrado resultados....</td></tr>
+                        <tr style={{ marginTop: '1.5em' }} className='container'><td colSpan='6'>No se han encontrado resultados....</td></tr>
                         :
                         params.productos.map((item, index) => {
 
@@ -54,6 +55,7 @@ export const TablaProductos = (params) => {
                                         <textarea readOnly cols='44' onMouseOut={()=>defaultSize(item.id)} onMouseOver={()=>setSizeText(item.id)} id={'textarea'+item.id} defaultValue={item.descripcion} rows='3'></textarea>
                                         </div>
                                     </td>
+                                    <td>{item.cantidad}</td>
                                     <td>${glob.formatNumber(item.valor)}</td>
                                 </tr>
                             )
